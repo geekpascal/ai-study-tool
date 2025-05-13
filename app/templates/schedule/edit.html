@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Schedule{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="mb-6">
+        <a href="{{ url_for('schedule.view', schedule_id=schedule.id) }}" class="inline-flex items-center text-blue-600 hover:text-blue-800">
+            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+            </svg>
+            Back to Schedule
+        </a>
+    </div>
+    
+    <div class="max-w-3xl mx-auto bg-white shadow-md rounded-lg overflow-hidden">
+        <div class="bg-gray-100 px-6 py-4 border-b border-gray-200">
+            <h1 class="text-2xl font-bold text-gray-800">Edit Schedule</h1>
+        </div>
+        
+        <div class="p-6">
+            <form method="POST" action="{{ url_for('schedule.edit', schedule_id=schedule.id) }}">
+                {{ form.csrf_token }}
+                
+                <div class="mb-4">
+                    <label for="title" class="block text-gray-700 text-sm font-bold mb-2">
+                        {{ form.title.label }}
+                    </label>
+                    {{ form.title(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline") }}
+                    {% if form.title.errors %}
+                        <p class="text-red-500 text-xs italic mt-1">
+                            {% for error in form.title.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </p>
+                    {% endif %}
+                </div>
+
+                <div class="mb-4">
+                    <label for="description" class="block text-gray-700 text-sm font-bold mb-2">
+                        {{ form.description.label }}
+                    </label>
+                    {{ form.description(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline", rows=4) }}
+                    {% if form.description.errors %}
+                        <p class="text-red-500 text-xs italic mt-1">
+                            {% for error in form.description.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </p>
+                    {% endif %}
+                </div>
+
+                <div class="mb-4">
+                    <label for="start_date" class="block text-gray-700 text-sm font-bold mb-2">
+                        {{ form.start_date.label }}
+                    </label>
+                    {{ form.start_date(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline", type="date") }}
+                    {% if form.start_date.errors %}
+                        <p class="text-red-500 text-xs italic mt-1">
+                            {% for error in form.start_date.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </p>
+                    {% endif %}
+                </div>
+
+                <div class="mb-4">
+                    <label for="end_date" class="block text-gray-700 text-sm font-bold mb-2">
+                        {{ form.end_date.label }}
+                    </label>
+                    {{ form.end_date(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline", type="date") }}
+                    {% if form.end_date.errors %}
+                        <p class="text-red-500 text-xs italic mt-1">
+                            {% for error in form.end_date.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </p>
+                    {% endif %}
+                </div>
+
+                <div class="mb-6">
+                    <div class="flex items-center">
+                        {{ form.is_active(class="mr-2") }}
+                        <label for="is_active" class="text-gray-700 text-sm font-bold">
+                            {{ form.is_active.label }}
+                        </label>
+                    </div>
+                    {% if form.is_active.errors %}
+                        <p class="text-red-500 text-xs italic mt-1">
+                            {% for error in form.is_active.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </p>
+                    {% endif %}
+                </div>
+
+                <div class="mb-4">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-3">Study Materials to Include:</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {% for subfield in form.materials %}
+                            <div class="flex items-start">
+                                {{ subfield(class="mt-1 mr-2") }}
+                                <label for="{{ subfield.id }}" class="text-gray-700">
+                                    {{ subfield.label }}
+                                </label>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-3">Skills to Focus On:</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {% for subfield in form.skills %}
+                            <div class="flex items-start">
+                                {{ subfield(class="mt-1 mr-2") }}
+                                <label for="{{ subfield.id }}" class="text-gray-700">
+                                    {{ subfield.label }}
+                                </label>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between">
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                        Update Schedule
+                    </button>
+                    <a href="{{ url_for('schedule.view', schedule_id=schedule.id) }}" class="inline-block text-sm font-semibold text-blue-600 hover:text-blue-800">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

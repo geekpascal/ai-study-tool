@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block title %}Add New Skill - Study Tool{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="mb-6">
+        <a href="{{ url_for('skills.index') }}" class="inline-flex items-center text-primary-600 hover:text-primary-700">
+            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+            </svg>
+            Back to Skills
+        </a>
+    </div>
+    
+    <div class="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-lg">
+        <div class="px-4 py-5 sm:px-6 bg-gradient-to-r from-primary-600 to-secondary-600">
+            <h1 class="text-lg leading-6 font-medium text-white">
+                Add New Skill
+            </h1>
+            <p class="mt-1 max-w-2xl text-sm text-white">
+                Track skills you want to develop and practice
+            </p>
+        </div>
+        
+        <div class="px-4 py-5 sm:p-6">
+            <form method="POST" action="{{ url_for('skills.create') }}">
+                {{ form.hidden_tag() }}
+                
+                <div class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                {{ form.name.label }} <span class="text-red-500">*</span>
+                            </label>
+                            {{ form.name(class="mt-1 focus:ring-primary-500 focus:border-primary-500 block w-full shadow-sm sm:text-sm border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-md") }}
+                            {% if form.name.errors %}
+                                <p class="mt-2 text-sm text-red-600">
+                                    {% for error in form.name.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </p>
+                            {% endif %}
+                        </div>
+                        
+                        <div>
+                            <label for="category" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                {{ form.category.label }} <span class="text-red-500">*</span>
+                            </label>
+                            {{ form.category(class="mt-1 block w-full py-2 px-3 border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white bg-white rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm") }}
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            {{ form.description.label }}
+                        </label>
+                        {{ form.description(class="mt-1 focus:ring-primary-500 focus:border-primary-500 block w-full shadow-sm sm:text-sm border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-md", rows="3") }}
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="proficiency_level" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                {{ form.proficiency_level.label }} <span class="text-red-500">*</span>
+                            </label>
+                            {{ form.proficiency_level(class="mt-1 focus:ring-primary-500 focus:border-primary-500 block w-full shadow-sm sm:text-sm border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-md") }}
+                            {% if form.proficiency_level.errors %}
+                                <p class="mt-2 text-sm text-red-600">
+                                    {% for error in form.proficiency_level.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </p>
+                            {% endif %}
+                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Your current skill level on a scale of 1-10</p>
+                        </div>
+                        
+                        <div>
+                            <label for="target_level" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                {{ form.target_level.label }} <span class="text-red-500">*</span>
+                            </label>
+                            {{ form.target_level(class="mt-1 focus:ring-primary-500 focus:border-primary-500 block w-full shadow-sm sm:text-sm border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-md") }}
+                            {% if form.target_level.errors %}
+                                <p class="mt-2 text-sm text-red-600">
+                                    {% for error in form.target_level.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </p>
+                            {% endif %}
+                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">The level you aim to reach (1-10)</p>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-base font-medium text-gray-900 dark:text-gray-100 mb-4">Learning Resources</h3>
+                        <p class="mb-3 text-sm text-gray-500 dark:text-gray-400">Add up to 3 resources to help you develop this skill</p>
+                        
+                        <div class="space-y-4">
+                            {% for i in range(3) %}
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                            Resource {{ i+1 }} URL
+                                        </label>
+                                        {{ form.resource_links[i](class="mt-1 focus:ring-primary-500 focus:border-primary-500 block w-full shadow-sm sm:text-sm border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-md", placeholder="https://example.com") }}
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                            Resource {{ i+1 }} Description
+                                        </label>
+                                        {{ form.resource_descriptions[i](class="mt-1 focus:ring-primary-500 focus:border-primary-500 block w-full shadow-sm sm:text-sm border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-md", placeholder="Brief description of the resource") }}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-8 flex justify-end">
+                    <a href="{{ url_for('skills.index') }}" class="bg-white dark:bg-gray-700 py-2 px-4 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 mr-3">
+                        Cancel
+                    </a>
+                    {{ form.submit(class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500") }}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

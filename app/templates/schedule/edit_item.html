@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Schedule Item{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="mb-6">
+        <a href="{{ url_for('schedule.view', schedule_id=schedule.id) }}" class="inline-flex items-center text-blue-600 hover:text-blue-800">
+            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+            </svg>
+            Back to Schedule
+        </a>
+    </div>
+    
+    <div class="max-w-2xl mx-auto bg-white shadow-md rounded-lg overflow-hidden">
+        <div class="bg-gray-100 px-6 py-4 border-b border-gray-200">
+            <h1 class="text-2xl font-bold text-gray-800">Edit Schedule Item</h1>
+            <p class="text-gray-600 text-sm mt-1">For schedule: {{ schedule.title }}</p>
+        </div>
+        
+        <div class="p-6">
+            <form method="POST" action="{{ url_for('schedule.edit_item', schedule_id=schedule.id, item_id=item.id) }}">
+                {{ form.csrf_token }}
+                
+                <div class="mb-4">
+                    <label for="title" class="block text-gray-700 text-sm font-bold mb-2">
+                        {{ form.title.label }}
+                    </label>
+                    {{ form.title(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline") }}
+                    {% if form.title.errors %}
+                        <p class="text-red-500 text-xs italic mt-1">
+                            {% for error in form.title.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </p>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-4">
+                    <label for="description" class="block text-gray-700 text-sm font-bold mb-2">
+                        {{ form.description.label }}
+                    </label>
+                    {{ form.description(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline", rows=3) }}
+                    {% if form.description.errors %}
+                        <p class="text-red-500 text-xs italic mt-1">
+                            {% for error in form.description.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </p>
+                    {% endif %}
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label for="date" class="block text-gray-700 text-sm font-bold mb-2">
+                            {{ form.date.label }}
+                        </label>
+                        {{ form.date(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline", type="date") }}
+                        {% if form.date.errors %}
+                            <p class="text-red-500 text-xs italic mt-1">
+                                {% for error in form.date.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </p>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label for="start_time" class="block text-gray-700 text-sm font-bold mb-2">
+                            {{ form.start_time.label }}
+                        </label>
+                        {{ form.start_time(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline", type="time") }}
+                        {% if form.start_time.errors %}
+                            <p class="text-red-500 text-xs italic mt-1">
+                                {% for error in form.start_time.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <label for="duration" class="block text-gray-700 text-sm font-bold mb-2">
+                        {{ form.duration.label }} (minutes)
+                    </label>
+                    {{ form.duration(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline", type="number", min="5") }}
+                    {% if form.duration.errors %}
+                        <p class="text-red-500 text-xs italic mt-1">
+                            {% for error in form.duration.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </p>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-6">
+                    <div class="flex items-center">
+                        {{ form.is_completed(class="mr-2") }}
+                        <label for="is_completed" class="text-gray-700 text-sm font-bold">
+                            {{ form.is_completed.label }}
+                        </label>
+                    </div>
+                    {% if form.is_completed.errors %}
+                        <p class="text-red-500 text-xs italic mt-1">
+                            {% for error in form.is_completed.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </p>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-4">
+                    <label for="material_id" class="block text-gray-700 text-sm font-bold mb-2">
+                        {{ form.material_id.label }}
+                    </label>
+                    {{ form.material_id(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline") }}
+                    {% if form.material_id.errors %}
+                        <p class="text-red-500 text-xs italic mt-1">
+                            {% for error in form.material_id.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </p>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-6">
+                    <label for="skill_id" class="block text-gray-700 text-sm font-bold mb-2">
+                        {{ form.skill_id.label }}
+                    </label>
+                    {{ form.skill_id(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline") }}
+                    {% if form.skill_id.errors %}
+                        <p class="text-red-500 text-xs italic mt-1">
+                            {% for error in form.skill_id.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </p>
+                    {% endif %}
+                </div>
+                
+                <div class="flex items-center justify-between">
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                        Save Changes
+                    </button>
+                    <a href="{{ url_for('schedule.view', schedule_id=schedule.id) }}" class="inline-block text-sm font-semibold text-blue-600 hover:text-blue-800">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

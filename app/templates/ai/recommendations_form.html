@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+
+{% block title %}Get Personalized Recommendations{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-3xl mx-auto">
+        <div class="mb-8">
+            <a href="{{ url_for('dashboard.index') }}" class="inline-flex items-center text-primary-600 hover:text-primary-700">
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Back to Dashboard
+            </a>
+        </div>
+        
+        <div class="bg-white shadow-md rounded-lg overflow-hidden mb-8">
+            <div class="bg-gradient-to-r from-primary-600 to-secondary-600 px-6 py-4">
+                <h1 class="text-2xl font-bold text-white flex items-center">
+                    <i class="fas fa-robot mr-3"></i>
+                    Get AI Recommendations
+                </h1>
+                <p class="text-white text-sm mt-1">Combine a study material and a skill to get personalized recommendations</p>
+            </div>
+            
+            <div class="p-6">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="mb-4 bg-{{ category }}-100 border-l-4 border-{{ category }}-500 text-{{ category }}-700 p-4">
+                                <p>{{ message }}</p>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                
+                <form method="POST" action="{{ url_for('ai.recommendations_route') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    
+                    <div class="mb-6">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-3">Select Academic Material</h2>
+                        
+                        {% if materials %}
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {% for material in materials %}
+                                    <div class="relative">
+                                        <input type="radio" name="material_id" id="material_{{ material.id }}" value="{{ material.id }}" class="hidden peer" required>
+                                        <label for="material_{{ material.id }}" class="block p-4 bg-white border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 peer-checked:border-primary-500 peer-checked:ring-1 peer-checked:ring-primary-500">
+                                            <h3 class="text-md font-medium text-gray-900">{{ material.title }}</h3>
+                                            {% if material.description %}
+                                                <p class="text-sm text-gray-500 truncate">{{ material.description }}</p>
+                                            {% endif %}
+                                        </label>
+                                        <div class="absolute top-4 right-4 h-5 w-5 text-primary-600 peer-checked:opacity-100 opacity-0">
+                                            <svg fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4">
+                                <div class="flex">
+                                    <div class="flex-shrink-0">
+                                        <svg class="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                        </svg>
+                                    </div>
+                                    <div class="ml-3">
+                                        <p class="text-sm text-yellow-700">
+                                            No study materials found. <a href="{{ url_for('materials.create') }}" class="font-medium underline text-yellow-700 hover:text-yellow-600">Add a material</a> first.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-3">Select Skill</h2>
+                        
+                        {% if skills %}
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {% for skill in skills %}
+                                    <div class="relative">
+                                        <input type="radio" name="skill_id" id="skill_{{ skill.id }}" value="{{ skill.id }}" class="hidden peer" required>
+                                        <label for="skill_{{ skill.id }}" class="block p-4 bg-white border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 peer-checked:border-secondary-500 peer-checked:ring-1 peer-checked:ring-secondary-500">
+                                            <h3 class="text-md font-medium text-gray-900">{{ skill.name }}</h3>
+                                            <div class="flex items-center">
+                                                <span class="text-xs text-gray-500 mr-2">Level {{ skill.proficiency_level }}/{{ skill.target_level }}</span>
+                                                <div class="flex-grow bg-gray-200 rounded-full h-1.5 max-w-xs">
+                                                    <div class="bg-secondary-500 h-1.5 rounded-full" style="width: {{ skill.progress_percentage() }}%"></div>
+                                                </div>
+                                            </div>
+                                        </label>
+                                        <div class="absolute top-4 right-4 h-5 w-5 text-secondary-600 peer-checked:opacity-100 opacity-0">
+                                            <svg fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4">
+                                <div class="flex">
+                                    <div class="flex-shrink-0">
+                                        <svg class="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                        </svg>
+                                    </div>
+                                    <div class="ml-3">
+                                        <p class="text-sm text-yellow-700">
+                                            No skills found. <a href="{{ url_for('skills.create') }}" class="font-medium underline text-yellow-700 hover:text-yellow-600">Add a skill</a> first.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="flex justify-end">
+                        <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                            Get Recommendations
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="bg-blue-50 border-l-4 border-blue-400 p-4 mb-6">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-blue-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm text-blue-700">
+                        The AI recommendations help you integrate your academic study with skill development by suggesting a personalized approach based on the selected material and skill.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

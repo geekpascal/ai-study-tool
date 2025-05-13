@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+
+{% block title %}Profile - {{ user.username }}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-4xl mx-auto">
+        <div class="bg-white shadow-md rounded-lg overflow-hidden">
+            <div class="bg-gradient-to-r from-primary-600 to-secondary-600 px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <h1 class="text-2xl font-bold text-white">Your Profile</h1>
+                    <div class="flex space-x-2">
+                        <a href="{{ url_for('profile.edit') }}" class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white font-medium py-2 px-4 rounded-md">
+                            <i class="fas fa-edit mr-2"></i> Edit Profile
+                        </a>
+                        <a href="{{ url_for('profile.change_password') }}" class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white font-medium py-2 px-4 rounded-md">
+                            <i class="fas fa-key mr-2"></i> Change Password
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- User profile information -->
+                    <div class="col-span-2">
+                        <div class="bg-gray-50 rounded-lg p-6 border border-gray-200">
+                            <div class="flex items-center mb-4">
+                                <div class="h-20 w-20 bg-primary-100 text-primary-600 rounded-full flex items-center justify-center text-2xl font-bold">
+                                    {{ user.username[0].upper() }}
+                                </div>
+                                <div class="ml-4">
+                                    <h2 class="text-xl font-bold text-gray-800">{{ user.name or user.username }}</h2>
+                                    <p class="text-gray-600">{{ user.username }}</p>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-4 space-y-4">
+                                <div>
+                                    <h3 class="text-sm font-medium text-gray-500">Email</h3>
+                                    <p class="mt-1 text-base text-gray-900">{{ user.email }}</p>
+                                </div>
+                                
+                                <div>
+                                    <h3 class="text-sm font-medium text-gray-500">Time Zone</h3>
+                                    <p class="mt-1 text-base text-gray-900">{{ user.time_zone or 'Not set' }}</p>
+                                </div>
+                                
+                                <div>
+                                    <h3 class="text-sm font-medium text-gray-500">Study Goal</h3>
+                                    <p class="mt-1 text-base text-gray-900">{{ user.study_goal or 'No goal set yet' }}</p>
+                                </div>
+                                
+                                <div>
+                                    <h3 class="text-sm font-medium text-gray-500">Bio</h3>
+                                    <p class="mt-1 text-base text-gray-900">{{ user.bio or 'No bio information' }}</p>
+                                </div>
+                                
+                                <div>
+                                    <h3 class="text-sm font-medium text-gray-500">Member Since</h3>
+                                    <p class="mt-1 text-base text-gray-900">{{ user.created_at.strftime('%B %d, %Y') }}</p>
+                                </div>
+                                
+                                <div>
+                                    <h3 class="text-sm font-medium text-gray-500">Last Login</h3>
+                                    <p class="mt-1 text-base text-gray-900">
+                                        {% if user.last_login %}
+                                            {{ user.last_login.strftime('%B %d, %Y at %H:%M') }}
+                                        {% else %}
+                                            Unknown
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Activity summary -->
+                    <div>
+                        <div class="bg-gray-50 rounded-lg p-6 border border-gray-200">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">Study Activity</h3>
+                            
+                            {% set stats = user.get_study_stats() %}
+                            
+                            <div class="space-y-4">
+                                <div>
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-sm font-medium text-gray-700">Study Materials</span>
+                                        <span class="text-sm font-medium text-gray-700">{{ stats.total_materials }}</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2">
+                                        <div class="bg-blue-600 h-2 rounded-full" style="width: 100%"></div>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-sm font-medium text-gray-700">Skills</span>
+                                        <span class="text-sm font-medium text-gray-700">{{ stats.total_skills }}</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2">
+                                        <div class="bg-green-600 h-2 rounded-full" style="width: 100%"></div>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-sm font-medium text-gray-700">Schedules</span>
+                                        <span class="text-sm font-medium text-gray-700">{{ stats.total_schedules }}</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2">
+                                        <div class="bg-purple-600 h-2 rounded-full" style="width: 100%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-6">
+                                <a href="{{ url_for('dashboard.index') }}" class="inline-flex items-center text-sm font-medium text-primary-600 hover:text-primary-700">
+                                    <i class="fas fa-chart-line mr-2"></i> View Full Dashboard
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

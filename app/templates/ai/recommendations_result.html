@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+
+{% block title %}AI Recommendations{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-4xl mx-auto">
+        <div class="mb-8">
+            <a href="{{ url_for('ai.recommendations_route') }}" class="inline-flex items-center text-primary-600 hover:text-primary-700">
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Back to Recommendations
+            </a>
+        </div>
+        
+        <div class="bg-white shadow-md rounded-lg overflow-hidden mb-8">
+            <div class="bg-gradient-to-r from-primary-600 to-secondary-600 px-6 py-4">
+                <h1 class="text-2xl font-bold text-white flex items-center">
+                    <i class="fas fa-robot mr-3"></i>
+                    AI Recommendations
+                </h1>
+                <p class="text-white text-sm mt-1">
+                    For {{ material.title }} + {{ skill.name }}
+                </p>
+            </div>
+            
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Material Information -->
+                    <div class="bg-blue-50 rounded-lg p-4 border border-blue-100">
+                        <h2 class="text-lg font-semibold text-blue-800 mb-2">Academic Material</h2>
+                        <h3 class="text-md font-medium text-gray-900">{{ material.title }}</h3>
+                        
+                        {% if material.description %}
+                            <p class="text-sm text-gray-600 mt-1">{{ material.description }}</p>
+                        {% endif %}
+                        
+                        {% if material.progress_percentage is defined %}
+                            <div class="mt-2">
+                                <div class="flex items-center">
+                                    <span class="text-xs text-gray-500 mr-2">
+                                        Progress: {{ material.progress_percentage() }}%
+                                    </span>
+                                    <div class="flex-grow bg-blue-200 rounded-full h-1.5 max-w-xs">
+                                        <div class="bg-blue-600 h-1.5 rounded-full" style="width: {{ material.progress_percentage() }}%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Skill Information -->
+                    <div class="bg-purple-50 rounded-lg p-4 border border-purple-100">
+                        <h2 class="text-lg font-semibold text-purple-800 mb-2">Skill</h2>
+                        <h3 class="text-md font-medium text-gray-900">{{ skill.name }}</h3>
+                        
+                        {% if skill.description %}
+                            <p class="text-sm text-gray-600 mt-1">{{ skill.description }}</p>
+                        {% endif %}
+                        
+                        <div class="mt-2">
+                            <div class="flex items-center">
+                                <span class="text-xs text-gray-500 mr-2">
+                                    Level {{ skill.proficiency_level }}/{{ skill.target_level }}
+                                </span>
+                                <div class="flex-grow bg-purple-200 rounded-full h-1.5 max-w-xs">
+                                    <div class="bg-purple-600 h-1.5 rounded-full" style="width: {{ skill.progress_percentage() }}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Academic Tips -->
+                <div class="mt-8">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">Academic Tips</h2>
+                    <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                        <ul class="space-y-4">
+                            {% for tip in recommendations.academic_tips %}
+                                <li class="flex items-start">
+                                    <div class="flex-shrink-0 h-6 w-6 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs font-bold mr-3">
+                                        {{ loop.index }}
+                                    </div>
+                                    <p class="text-gray-700">{{ tip }}</p>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Skill Resources -->
+                <div class="mt-8">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">Skill Resources</h2>
+                    <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                        <div class="space-y-4">
+                            {% for resource in recommendations.skill_resources %}
+                                <div>
+                                    <a href="{{ resource }}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">
+                                        {{ resource }}
+                                    </a>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Study Plan -->
+                <div class="mt-8">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">Integrated Study Plan</h2>
+                    <div class="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-lg p-6 border border-indigo-100">
+                        <p class="text-gray-700">{{ recommendations.study_plan }}</p>
+                    </div>
+                </div>
+                
+                <!-- Implementation Actions -->
+                <div class="mt-8 pt-6 border-t border-gray-200">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">Take Action</h2>
+                    <div class="flex flex-wrap gap-4">
+                        <a href="{{ url_for('schedule.create') }}" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                            <svg class="mr-2 -ml-1 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                            Create Schedule
+                        </a>
+                        
+                        <a href="{{ url_for('skills.update_progress', id=skill.id) }}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                            <svg class="mr-2 -ml-1 h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            Update Skill Progress
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm text-yellow-700">
+                        These recommendations are AI-generated and should be used as guidance. Adapt them to your specific learning style and needs.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

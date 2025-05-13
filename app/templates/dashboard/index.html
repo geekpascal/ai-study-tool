@@ -1,0 +1,380 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Study Tool{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="py-4">
+        <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">Dashboard</h1>
+    </div>
+    
+    <!-- Welcome and overview section -->
+    <div class="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-lg mb-6">
+        <div class="px-4 py-5 sm:px-6 bg-gradient-to-r from-primary-600 to-secondary-600">
+            <h2 class="text-lg leading-6 font-medium text-white">
+                <i class="fas fa-chart-line mr-2"></i> Welcome, {{ current_user.username }}!
+            </h2>
+            <p class="mt-1 max-w-2xl text-sm text-white">
+                Your personal study and skill development dashboard.
+            </p>
+        </div>
+        <div class="border-t border-gray-200 dark:border-gray-700">
+            <dl>
+                <div class="bg-gray-50 dark:bg-gray-900 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">
+                        Total Materials
+                    </dt>
+                    <dd class="mt-1 text-sm text-gray-900 dark:text-white sm:mt-0 sm:col-span-2">
+                        {{ current_user.materials.count() }}
+                    </dd>
+                </div>
+                <div class="bg-white dark:bg-gray-800 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">
+                        Total Skills
+                    </dt>
+                    <dd class="mt-1 text-sm text-gray-900 dark:text-white sm:mt-0 sm:col-span-2">
+                        {{ current_user.skills.count() }}
+                    </dd>
+                </div>
+                <div class="bg-gray-50 dark:bg-gray-900 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">
+                        Account Created
+                    </dt>
+                    <dd class="mt-1 text-sm text-gray-900 dark:text-white sm:mt-0 sm:col-span-2">
+                        {{ current_user.created_at.strftime('%B %d, %Y') }}
+                    </dd>
+                </div>
+            </dl>
+        </div>
+    </div>
+    
+    <!-- Today's schedule section -->
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <div class="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-lg">
+            <div class="px-4 py-5 sm:px-6 flex justify-between items-center">
+                <div>
+                    <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">
+                        <i class="fas fa-calendar-day mr-2"></i> Today's Schedule
+                    </h3>
+                    <p class="mt-1 max-w-2xl text-sm text-gray-500 dark:text-gray-400">
+                        {{ schedule.date.strftime('%A, %B %d, %Y') if schedule and hasattr(schedule, 'date') else schedule.title if schedule and hasattr(schedule, 'title') else 'No schedule set for today' }}
+                    </p>
+                </div>
+                <a href="{{ url_for('schedule.index') }}" class="inline-flex items-center px-3 py-1 border border-transparent text-sm leading-5 font-medium rounded-md text-primary-700 bg-primary-100 hover:bg-primary-200 dark:text-white dark:bg-primary-800 dark:hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                    View All
+                </a>
+            </div>
+            <div class="border-t border-gray-200 dark:border-gray-700 divide-y divide-gray-200 dark:divide-gray-700">
+                {% if schedule_items and schedule_items|length > 0 %}
+                    {% for item in schedule_items %}
+                        <div class="px-4 py-4 sm:px-6 flex items-center">
+                            <div class="flex-shrink-0 mr-4">
+                                {% if item.item_type == 'academic' %}
+                                    <span class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center dark:bg-blue-800">
+                                        <i class="fas fa-book text-blue-600 dark:text-blue-200"></i>
+                                    </span>
+                                {% elif item.item_type == 'skill' %}
+                                    <span class="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center dark:bg-green-800">
+                                        <i class="fas fa-code text-green-600 dark:text-green-200"></i>
+                                    </span>
+                                {% else %}
+                                    <span class="h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center dark:bg-gray-700">
+                                        <i class="fas fa-tasks text-gray-600 dark:text-gray-300"></i>
+                                    </span>
+                                {% endif %}
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-gray-900 dark:text-white truncate">
+                                    {{ item.title }}
+                                </p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400 truncate">
+                                    {{ item.start_time.strftime('%I:%M %p') }} - {{ item.end_time.strftime('%I:%M %p') }}
+                                </p>
+                            </div>
+                            <div class="ml-2 flex-shrink-0">
+                                {% if item.completed %}
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100">
+                                        Completed
+                                    </span>
+                                {% else %}
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100">
+                                        Pending
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="px-4 py-5 sm:px-6 text-center">
+                        <p class="text-sm text-gray-500 dark:text-gray-400">No scheduled items for today.</p>
+                        <a href="{{ url_for('schedule.index') }}" class="mt-3 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                            Create Schedule
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Upcoming deadlines section -->
+        <div class="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-lg">
+            <div class="px-4 py-5 sm:px-6 flex justify-between items-center">
+                <div>
+                    <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">
+                        <i class="fas fa-clock mr-2"></i> Upcoming Deadlines
+                    </h3>
+                    <p class="mt-1 max-w-2xl text-sm text-gray-500 dark:text-gray-400">
+                        Materials due in the next 7 days
+                    </p>
+                </div>
+                <a href="{{ url_for('materials.index') }}" class="inline-flex items-center px-3 py-1 border border-transparent text-sm leading-5 font-medium rounded-md text-primary-700 bg-primary-100 hover:bg-primary-200 dark:text-white dark:bg-primary-800 dark:hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                    View All
+                </a>
+            </div>
+            <div class="border-t border-gray-200 dark:border-gray-700 divide-y divide-gray-200 dark:divide-gray-700">
+                {% if upcoming_materials %}
+                    {% for material in upcoming_materials %}
+                        <div class="px-4 py-4 sm:px-6">
+                            <div class="flex items-center justify-between">
+                                <p class="text-sm font-medium text-primary-600 truncate dark:text-primary-400">
+                                    {{ material.title }}
+                                </p>
+                                <div class="ml-2 flex-shrink-0 flex">
+                                    <p class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                        {% if material.remaining_days() <= 1 %}
+                                            bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100
+                                        {% elif material.remaining_days() <= 3 %}
+                                            bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100
+                                        {% else %}
+                                            bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100
+                                        {% endif %}">
+                                        {% if material.remaining_days() == 0 %}
+                                            Due today!
+                                        {% elif material.remaining_days() == 1 %}
+                                            Due tomorrow!
+                                        {% else %}
+                                            Due in {{ material.remaining_days() }} days
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="mt-2 sm:flex sm:justify-between">
+                                <div class="sm:flex">
+                                    <p class="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                                        {% if material.file_type %}
+                                            <i class="fas fa-file-{{ material.file_type }} flex-shrink-0 mr-1.5 text-gray-400 dark:text-gray-500"></i>
+                                        {% else %}
+                                            <i class="fas fa-file flex-shrink-0 mr-1.5 text-gray-400 dark:text-gray-500"></i>
+                                        {% endif %}
+                                        {{ material.current_page }}/{{ material.total_pages }} pages
+                                    </p>
+                                </div>
+                                <div class="mt-2 flex items-center text-sm text-gray-500 dark:text-gray-400 sm:mt-0">
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700 mr-2">
+                                        <div class="bg-primary-600 h-2.5 rounded-full progress-bar" style="width: {{ material.progress_percentage() }}%"></div>
+                                    </div>
+                                    <span>{{ material.progress_percentage() }}%</span>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="px-4 py-5 sm:px-6 text-center">
+                        <p class="text-sm text-gray-500 dark:text-gray-400">No upcoming deadlines.</p>
+                        <a href="{{ url_for('materials.create') }}" class="mt-3 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                            Add Material
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Second row -->
+    <div class="grid grid-cols-1 gap-6 mt-6 lg:grid-cols-2">
+        <!-- Neglected skills section -->
+        <div class="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-lg">
+            <div class="px-4 py-5 sm:px-6 flex justify-between items-center">
+                <div>
+                    <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">
+                        <i class="fas fa-exclamation-triangle mr-2"></i> Skills Needing Practice
+                    </h3>
+                    <p class="mt-1 max-w-2xl text-sm text-gray-500 dark:text-gray-400">
+                        Skills not practiced in over 3 days
+                    </p>
+                </div>
+                <a href="{{ url_for('skills.index') }}" class="inline-flex items-center px-3 py-1 border border-transparent text-sm leading-5 font-medium rounded-md text-primary-700 bg-primary-100 hover:bg-primary-200 dark:text-white dark:bg-primary-800 dark:hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                    View All
+                </a>
+            </div>
+            <div class="border-t border-gray-200 dark:border-gray-700 divide-y divide-gray-200 dark:divide-gray-700">
+                {% if neglected_skills %}
+                    {% for skill in neglected_skills %}
+                        <div class="px-4 py-4 sm:px-6">
+                            <div class="flex items-center justify-between">
+                                <p class="text-sm font-medium text-primary-600 truncate dark:text-primary-400">
+                                    {{ skill.name }}
+                                </p>
+                                <div class="ml-2 flex-shrink-0 flex">
+                                    <p class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                        {% if not skill.last_practiced or skill.days_since_last_practice() > 7 %}
+                                            bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100
+                                        {% elif skill.days_since_last_practice() > 5 %}
+                                            bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100
+                                        {% else %}
+                                            bg-orange-100 text-orange-800 dark:bg-orange-800 dark:text-orange-100
+                                        {% endif %}">
+                                        {% if not skill.last_practiced %}
+                                            Never practiced
+                                        {% else %}
+                                            {{ skill.days_since_last_practice() }} days ago
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="mt-2 sm:flex sm:justify-between">
+                                <div class="sm:flex">
+                                    <p class="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                                        <i class="fas fa-tag flex-shrink-0 mr-1.5 text-gray-400 dark:text-gray-500"></i>
+                                        {{ skill.category }}
+                                    </p>
+                                </div>
+                                <div class="mt-2 flex items-center text-sm text-gray-500 dark:text-gray-400 sm:mt-0">
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700 mr-2">
+                                        <div class="bg-primary-600 h-2.5 rounded-full progress-bar" style="width: {{ skill.progress_percentage() }}%"></div>
+                                    </div>
+                                    <span>{{ skill.progress_percentage() }}%</span>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="px-4 py-5 sm:px-6 text-center">
+                        <p class="text-sm text-gray-500 dark:text-gray-400">All skills have been practiced recently.</p>
+                        <a href="{{ url_for('skills.create') }}" class="mt-3 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                            Add Skill
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Low progress section -->
+        <div class="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-lg">
+            <div class="px-4 py-5 sm:px-6">
+                <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">
+                    <i class="fas fa-battery-quarter mr-2"></i> Low Progress Items
+                </h3>
+                <p class="mt-1 max-w-2xl text-sm text-gray-500 dark:text-gray-400">
+                    Materials and skills with less than 30% progress
+                </p>
+            </div>
+            <div class="border-t border-gray-200 dark:border-gray-700 divide-y divide-gray-200 dark:divide-gray-700">
+                {% if low_progress_materials or low_progress_skills %}
+                    {% if low_progress_materials %}
+                        <div class="px-4 py-4 sm:px-6">
+                            <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">Academic Materials</h4>
+                            <ul class="space-y-3">
+                                {% for material in low_progress_materials %}
+                                    <li class="bg-gray-50 dark:bg-gray-900 p-3 rounded-md">
+                                        <div class="flex items-center justify-between">
+                                            <p class="text-sm font-medium text-gray-900 dark:text-white">
+                                                {{ material.title }}
+                                            </p>
+                                            <span class="text-xs text-gray-500 dark:text-gray-400">{{ material.progress_percentage() }}%</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-1.5 mt-2 dark:bg-gray-700">
+                                            <div class="bg-primary-600 h-1.5 rounded-full" style="width: {{ material.progress_percentage() }}%"></div>
+                                        </div>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+                    
+                    {% if low_progress_skills %}
+                        <div class="px-4 py-4 sm:px-6">
+                            <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">Skills</h4>
+                            <ul class="space-y-3">
+                                {% for skill in low_progress_skills %}
+                                    <li class="bg-gray-50 dark:bg-gray-900 p-3 rounded-md">
+                                        <div class="flex items-center justify-between">
+                                            <p class="text-sm font-medium text-gray-900 dark:text-white">
+                                                {{ skill.name }}
+                                            </p>
+                                            <span class="text-xs text-gray-500 dark:text-gray-400">{{ skill.progress_percentage() }}%</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-1.5 mt-2 dark:bg-gray-700">
+                                            <div class="bg-primary-600 h-1.5 rounded-full" style="width: {{ skill.progress_percentage() }}%"></div>
+                                        </div>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+                {% else %}
+                    <div class="px-4 py-5 sm:px-6 text-center">
+                        <p class="text-sm text-gray-500 dark:text-gray-400">No low progress items. Great job!</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- AI Features Card -->
+    <div class="mt-6">
+        <div class="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-lg">
+            <div class="px-4 py-5 sm:px-6 bg-gradient-to-r from-indigo-600 to-purple-700">
+                <h3 class="text-lg leading-6 font-medium text-white flex items-center">
+                    <i class="fas fa-robot mr-2"></i> AI-Powered Learning Assistant
+                </h3>
+                <p class="mt-1 max-w-2xl text-sm text-white">
+                    Enhance your study experience with personalized AI features
+                </p>
+            </div>
+            <div class="px-4 py-5 sm:p-6">
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                    <a href="{{ url_for('ai.recommendations_route') }}" class="relative rounded-lg border border-gray-300 bg-white dark:bg-gray-800 dark:border-gray-700 px-6 py-5 shadow-sm flex items-center space-x-3 hover:border-primary-400 hover:bg-primary-50 dark:hover:bg-gray-700 transition-colors">
+                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-indigo-100 dark:bg-indigo-800 flex items-center justify-center">
+                            <i class="fas fa-lightbulb text-indigo-600 dark:text-indigo-300"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <span class="text-sm font-medium text-gray-900 dark:text-white">Personalized Recommendations</span>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">Get tailored study advice</p>
+                        </div>
+                    </a>
+                    
+                    <a href="{{ url_for('ai.search_route') }}" class="relative rounded-lg border border-gray-300 bg-white dark:bg-gray-800 dark:border-gray-700 px-6 py-5 shadow-sm flex items-center space-x-3 hover:border-primary-400 hover:bg-primary-50 dark:hover:bg-gray-700 transition-colors">
+                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-blue-100 dark:bg-blue-800 flex items-center justify-center">
+                            <i class="fas fa-search text-blue-600 dark:text-blue-300"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <span class="text-sm font-medium text-gray-900 dark:text-white">Learning Resources</span>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">Find relevant study materials</p>
+                        </div>
+                    </a>
+                    
+                    <a href="{{ url_for('ai.generate_schedule_route') }}" class="relative rounded-lg border border-gray-300 bg-white dark:bg-gray-800 dark:border-gray-700 px-6 py-5 shadow-sm flex items-center space-x-3 hover:border-primary-400 hover:bg-primary-50 dark:hover:bg-gray-700 transition-colors">
+                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-green-100 dark:bg-green-800 flex items-center justify-center">
+                            <i class="fas fa-calendar-check text-green-600 dark:text-green-300"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <span class="text-sm font-medium text-gray-900 dark:text-white">Generate Schedule</span>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">Optimize your study time</p>
+                        </div>
+                    </a>
+                    
+                    <a href="{{ url_for('ai.study_insights_route') }}" class="relative rounded-lg border border-gray-300 bg-white dark:bg-gray-800 dark:border-gray-700 px-6 py-5 shadow-sm flex items-center space-x-3 hover:border-primary-400 hover:bg-primary-50 dark:hover:bg-gray-700 transition-colors">
+                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-purple-100 dark:bg-purple-800 flex items-center justify-center">
+                            <i class="fas fa-chart-line text-purple-600 dark:text-purple-300"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <span class="text-sm font-medium text-gray-900 dark:text-white">Study Insights</span>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">Analyze your learning patterns</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

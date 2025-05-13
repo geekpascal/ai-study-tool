@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+
+{% block title %}AI-Generated Schedule{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-5xl mx-auto">
+        <div class="mb-8">
+            <a href="{{ url_for('ai.generate_schedule_route') }}" class="inline-flex items-center text-primary-600 hover:text-primary-700">
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Back to Schedule Generator
+            </a>
+        </div>
+        
+        <div class="bg-white shadow-md rounded-lg overflow-hidden mb-8">
+            <div class="bg-gradient-to-r from-emerald-600 to-green-700 px-6 py-4">
+                <h1 class="text-2xl font-bold text-white flex items-center">
+                    <i class="fas fa-calendar-check mr-3"></i>
+                    Your Optimized Study Schedule
+                </h1>
+                <p class="text-white text-sm mt-1">
+                    AI-generated schedule based on your materials and skills
+                </p>
+            </div>
+            
+            <div class="p-6">
+                <!-- Daily Plan Section -->
+                <div class="mb-8">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">Daily Study Plan</h2>
+                    <div class="bg-gradient-to-br from-emerald-50 to-green-50 rounded-lg p-6 border border-emerald-100">
+                        <p class="text-gray-700 whitespace-pre-wrap">{{ schedule.daily_plan }}</p>
+                    </div>
+                </div>
+                
+                <!-- Material Allocations -->
+                <div class="mb-8">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">Material Time Allocations</h2>
+                    <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                        <ul class="space-y-4">
+                            {% for allocation in schedule.material_allocations %}
+                                <li class="flex items-start">
+                                    <div class="flex-shrink-0 h-6 w-6 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs font-bold mr-3">
+                                        {{ loop.index }}
+                                    </div>
+                                    <p class="text-gray-700">{{ allocation }}</p>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Skill Allocations -->
+                <div class="mb-8">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">Skill Time Allocations</h2>
+                    <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                        <ul class="space-y-4">
+                            {% for allocation in schedule.skill_allocations %}
+                                <li class="flex items-start">
+                                    <div class="flex-shrink-0 h-6 w-6 rounded-full bg-purple-500 flex items-center justify-center text-white text-xs font-bold mr-3">
+                                        {{ loop.index }}
+                                    </div>
+                                    <p class="text-gray-700">{{ allocation }}</p>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Optimization Notes -->
+                <div>
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">Optimization Notes</h2>
+                    <div class="bg-gray-50 rounded-lg p-6 border border-gray-200">
+                        <p class="text-gray-700">{{ schedule.optimization_notes }}</p>
+                    </div>
+                </div>
+                
+                <!-- Implementation Actions -->
+                <div class="mt-8 pt-6 border-t border-gray-200">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">Take Action</h2>
+                    <div class="flex flex-wrap gap-4">
+                        <a href="{{ url_for('schedule.create') }}" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                            <i class="fas fa-calendar-plus mr-2"></i>
+                            Create New Schedule
+                        </a>
+                        
+                        <a href="{{ url_for('schedule.index') }}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                            <i class="fas fa-calendar-alt mr-2"></i>
+                            View All Schedules
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm text-yellow-700">
+                        This schedule is AI-generated based on your materials, skills, and preferences. You can customize it further when creating your actual schedule.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block title %}Generate AI Schedule{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-3xl mx-auto">
+        <div class="mb-8">
+            <a href="{{ url_for('dashboard.index') }}" class="inline-flex items-center text-primary-600 hover:text-primary-700">
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Back to Dashboard
+            </a>
+        </div>
+        
+        <div class="bg-white shadow-md rounded-lg overflow-hidden mb-8">
+            <div class="bg-gradient-to-r from-emerald-600 to-green-700 px-6 py-4">
+                <h1 class="text-2xl font-bold text-white flex items-center">
+                    <i class="fas fa-calendar-alt mr-3"></i>
+                    Generate Optimized Schedule
+                </h1>
+                <p class="text-white text-sm mt-1">Use AI to create a personalized study schedule based on your materials and skills</p>
+            </div>
+            
+            <div class="p-6">
+                <form method="POST" action="{{ url_for('ai.generate_schedule_route') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    
+                    <div class="mb-6">
+                        <label for="available_hours" class="block text-sm font-medium text-gray-700">Available Hours Per Day</label>
+                        <input type="number" name="available_hours" id="available_hours" min="1" max="24" value="4" class="mt-1 focus:ring-primary-500 focus:border-primary-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                        <p class="mt-1 text-xs text-gray-500">How many hours can you dedicate to studying each day?</p>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label for="preferences" class="block text-sm font-medium text-gray-700">Your Preferences</label>
+                        <textarea name="preferences" id="preferences" rows="3" class="mt-1 focus:ring-primary-500 focus:border-primary-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" placeholder="E.g., I prefer studying in the morning, I need frequent breaks, I want to focus more on skill development"></textarea>
+                        <p class="mt-1 text-xs text-gray-500">Include any specific preferences that should be considered for your schedule</p>
+                    </div>
+                    
+                    <div class="flex justify-end">
+                        <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500">
+                            <svg class="mr-2 -ml-1 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+                            </svg>
+                            Generate Schedule
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="bg-white shadow-md rounded-lg overflow-hidden">
+            <div class="px-6 py-4 bg-gray-100">
+                <h2 class="text-xl font-semibold text-gray-800">How AI Schedule Generation Works</h2>
+            </div>
+            
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                    <div class="space-y-2">
+                        <div class="inline-flex items-center justify-center h-10 w-10 rounded-full bg-emerald-100 text-emerald-600">
+                            <span class="text-lg font-semibold">1</span>
+                        </div>
+                        <h3 class="text-md font-medium text-gray-900">Analyze Your Materials</h3>
+                        <p class="text-sm text-gray-500">The AI analyzes your study materials, their priorities, deadlines, and current progress.</p>
+                    </div>
+                    
+                    <div class="space-y-2">
+                        <div class="inline-flex items-center justify-center h-10 w-10 rounded-full bg-emerald-100 text-emerald-600">
+                            <span class="text-lg font-semibold">2</span>
+                        </div>
+                        <h3 class="text-md font-medium text-gray-900">Evaluate Your Skills</h3>
+                        <p class="text-sm text-gray-500">Your skills are evaluated based on current level, target level, and how recently you've practiced them.</p>
+                    </div>
+                    
+                    <div class="space-y-2">
+                        <div class="inline-flex items-center justify-center h-10 w-10 rounded-full bg-emerald-100 text-emerald-600">
+                            <span class="text-lg font-semibold">3</span>
+                        </div>
+                        <h3 class="text-md font-medium text-gray-900">Create Optimal Schedule</h3>
+                        <p class="text-sm text-gray-500">A personalized schedule is created with time blocks for each material and skill based on your availability.</p>
+                    </div>
+                </div>
+                
+                <div class="bg-blue-50 border-l-4 border-blue-400 p-4">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-blue-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-blue-700">
+                                For best results, make sure you've added your study materials and skills with detailed information about their priority, deadlines, and your current progress.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
