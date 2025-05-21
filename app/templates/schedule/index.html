@@ -3,13 +3,13 @@
 {% block title %}Schedules | UniqueSync{% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4 py-8">
+<div class="container mx-auto px-4 py-2">
     <!-- Header with gradient background -->
-    <a href="{{ url_for('schedule.create') }}" class="inline-flex items-center px-5 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-white bg-opacity-20 hover:bg-opacity-30 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-400 transition-all duration-200">
-        <i class="fas fa-plus mr-2"></i>
+    <a href="{{ url_for('schedule.create') }}" class="inline-flex items-center px-5 py-3 border border-blue-500 text-base font-medium rounded-lg shadow-sm text-gray-900 bg-white bg-opacity-20 hover:bg-opacity-30 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400 transition-all duration-200">
+        <i class="fas fa-plus mr-2 text-gray-900"></i>
         Create New Schedule
     </a>
-    <div class="relative mb-8 rounded-xl overflow-hidden">
+    <div class="relative mb-8 rounded-xl overflow-hidden py-4">
         <div class="bg-gradient-to-r from-primary-600 to-secondary-600 px-6 py-8">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
                 <div class="mb-4 md:mb-0">
