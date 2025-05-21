@@ -28,7 +28,8 @@ class Material(db.Model):
     def remaining_days(self):
         if not self.deadline:
             return None
-        return (self.deadline - datetime.utcnow()).days
+        delta = self.deadline - datetime.utcnow()
+        return max(0, delta.days)
     
     def pages_per_day(self):
         if not self.deadline or self.total_pages == 0:

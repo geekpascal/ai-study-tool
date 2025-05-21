@@ -74,37 +74,95 @@ def get_gemini_recommendations(study_material, skill_name, current_progress):
     academic_prompt = f"""
     I'm studying {study_material} and I'm currently {current_progress} through the material.
     Can you provide 3 specific tips to improve my understanding of this subject?
-    Format as a bulleted list without any introduction or conclusion.
+    Format as a bulleted list with proper HTML formatting. Use <strong> for emphasis and <ul> and <li> tags.
     """
     
     # Create prompt for skill resources
     skill_prompt = f"""
     I'm learning {skill_name} and I'm looking for quality learning resources.
     Can you recommend 3 specific online resources (tutorials, courses, documentation) to help me improve?
-    Return only the direct URLs without any additional text, one per line.
+    Format each resource as an HTML link (<a href="URL">Title</a>), one per line.
     """
     
     # Create prompt for study plan improvement
     plan_prompt = f"""
     I'm balancing studying {study_material} with developing {skill_name} skills.
-    Can you give me a brief, specific, actionable suggestion on how to better integrate these two areas of learning?
-    Keep it under 100 words with no introduction or conclusion.
+    Can you give me a specific, actionable suggestion on how to better integrate these two areas of learning?
+    Keep it under 100 words and use proper HTML formatting with <p>, <strong>, and <em> tags as appropriate.
     """
     
     try:
         # Get academic tips
         academic_response = model.generate_content(academic_prompt)
-        academic_tips = academic_response.text.split('\n')
-        academic_tips = [tip.strip('• ').strip() for tip in academic_tips if tip.strip()]
+        academic_text = academic_response.text.strip()
+        
+        # Process academic_tips - extract from HTML if needed or convert markdown-style to HTML
+        if '<ul>' in academic_text and '</ul>' in academic_text:
+            academic_tips = academic_text
+        else:
+            # Convert markdown-style asterisks to HTML
+            lines = academic_text.split('\n')
+            academic_tips = '<ul>'
+            for line in lines:
+                line = line.strip()
+                if line:
+                    # Replace markdown ** with <strong>
+                    line = line.replace('**', '<strong>', 1)
+                    if '**' in line:
+                        line = line.replace('**', '</strong>', 1)
+                    
+                    # Handle bullet points
+                    if line.startswith('• '):
+                        line = f'<li>{line[2:]}</li>'
+                    elif line.startswith('* '):
+                        line = f'<li>{line[2:]}</li>'
+                    elif line.startswith('- '):
+                        line = f'<li>{line[2:]}</li>'
+                    else:
+                        line = f'<li>{line}</li>'
+                    
+                    academic_tips += line
+            academic_tips += '</ul>'
         
         # Get skill resources
         skill_response = model.generate_content(skill_prompt)
-        skill_resources = skill_response.text.split('\n')
-        skill_resources = [url.strip() for url in skill_resources if url.strip()]
+        skill_text = skill_response.text.strip()
+        
+        # Process skill_resources - convert to HTML links if needed
+        if '<a href' in skill_text:
+            skill_resources = skill_text
+        else:
+            lines = skill_text.split('\n')
+            skill_resources = '<ul>'
+            for line in lines:
+                line = line.strip()
+                if line:
+                    # If it's already a URL, make it a link
+                    if line.startswith(('http://', 'https://')):
+                        skill_resources += f'<li><a href="{line}" target="_blank">{line}</a></li>'
+                    else:
+                        skill_resources += f'<li>{line}</li>'
+            skill_resources += '</ul>'
         
         # Get study plan advice
         plan_response = model.generate_content(plan_prompt)
         study_plan = plan_response.text.strip()
+        
+        # Process study_plan - convert markdown-style to HTML if needed
+        if '<p>' not in study_plan:
+            # Replace markdown ** with <strong>
+            study_plan = study_plan.replace('**', '<strong>', 1)
+            if '**' in study_plan:
+                study_plan = study_plan.replace('**', '</strong>', 1)
+            
+            # Replace markdown * with <em>
+            study_plan = study_plan.replace('*', '<em>', 1)
+            if '*' in study_plan:
+                study_plan = study_plan.replace('*', '</em>', 1)
+            
+            # Wrap in paragraph if not already
+            if not study_plan.startswith('<p>'):
+                study_plan = f'<p>{study_plan}</p>'
         
         return {
             "academic_tips": academic_tips,

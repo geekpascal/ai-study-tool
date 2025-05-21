@@ -131,12 +131,14 @@
                 </a>
             </div>
             <div class="border-t border-gray-200 dark:border-gray-700 divide-y divide-gray-200 dark:divide-gray-700">
-                {% if upcoming_materials %}
+                {% if upcoming_materials and upcoming_materials|length > 0 %}
                     {% for material in upcoming_materials %}
                         <div class="px-4 py-4 sm:px-6">
                             <div class="flex items-center justify-between">
                                 <p class="text-sm font-medium text-primary-600 truncate dark:text-primary-400">
-                                    {{ material.title }}
+                                    <a href="{{ url_for('materials.view', material_id=material.id) }}" class="hover:underline">
+                                        {{ material.title }}
+                                    </a>
                                 </p>
                                 <div class="ml-2 flex-shrink-0 flex">
                                     <p class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 

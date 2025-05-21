@@ -22,6 +22,7 @@ class ScheduleItemForm(FlaskForm):
     skill_id = SelectField('Skill', coerce=int, validators=[Optional()])
     title = StringField('Title (for Other items)', validators=[Optional()])
     description = TextAreaField('Description', validators=[Optional()])
+    completed = BooleanField('Mark as Completed', default=False)
     submit = SubmitField('Add to Schedule')
     
     def __init__(self, *args, **kwargs):

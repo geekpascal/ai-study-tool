@@ -1,139 +1,195 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ schedule.title if schedule.title else 'Schedule' }}{% endblock %}
+{% block title %}{{ schedule.title }} | UniqueSync{% endblock %}
 
 {% block content %}
 <div class="container mx-auto px-4 py-8">
-    <div class="mb-6">
-        <a href="{{ url_for('schedule.index') }}" class="inline-flex items-center text-blue-600 hover:text-blue-800">
-            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-            </svg>
-            Back to Schedules
-        </a>
-    </div>
-
-    <div class="bg-white shadow-md rounded-lg overflow-hidden">
-        <div class="bg-gray-100 px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-            <h1 class="text-2xl font-bold text-gray-800">{{ schedule.title if schedule.title else 'Schedule for ' ~ current_date|default(schedule.date, true)|string }}</h1>
-            <div class="flex items-center">
-                <span class="px-3 py-1 rounded-full text-sm font-semibold 
-                    {% if schedule.is_active %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %}">
-                    {{ 'Active' if schedule.is_active else 'Inactive' }}
-                </span>
-                <div class="ml-4 flex space-x-2">
-                    <form id="delete-form" action="{{ url_for('schedule.index') }}" method="post" class="hidden">
+    <!-- Header with gradient background -->
+    <div class="relative mb-8 rounded-xl overflow-hidden">
+        <div class="bg-gradient-to-r from-primary-600 to-secondary-600 px-6 py-8">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
+                <div class="mb-4 md:mb-0">
+                    <div class="flex items-center mb-2">
+                        <h1 class="text-3xl font-bold text-white">{{ schedule.title }}</h1>
+                        <span class="ml-3 inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium 
+                            {% if schedule.is_active %}
+                                bg-green-100 text-green-800
+                            {% else %}
+                                bg-gray-100 text-gray-800
+                            {% endif %}">
+                            {% if schedule.is_active %}
+                                Active
+                            {% else %}
+                                Inactive
+                            {% endif %}
+                        </span>
+                    </div>
+                    <p class="text-primary-100 max-w-2xl">{{ schedule.description }}</p>
+                    
+                    <div class="flex flex-wrap gap-4 mt-3">
+                        <div class="flex items-center text-white">
+                            <i class="fas fa-calendar-day mr-2"></i>
+                            <span>
+                                {% if schedule.start_date == schedule.end_date %}
+                                    {{ schedule.get_display_date().strftime('%B %d, %Y') }}
+                                {% else %}
+                                    {{ schedule.start_date.strftime('%b %d') }} - {{ schedule.end_date.strftime('%b %d, %Y') }}
+                                {% endif %}
+                            </span>
+                        </div>
+                        
+                        <div class="flex items-center text-white">
+                            <i class="fas fa-clock mr-2"></i>
+                            <span>Total: {{ schedule.items.count() }} items</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex flex-wrap gap-2">
+                    <a href="{{ url_for('schedule.edit', schedule_id=schedule.id) }}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-white bg-opacity-20 hover:bg-opacity-30 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-400 transition-all duration-200">
+                        <i class="fas fa-edit mr-2"></i>
+                        Edit Schedule
+                    </a>
+                    <button onclick="if(confirm('Are you sure you want to delete this schedule?')) { document.getElementById('delete-form').submit(); }" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-white bg-opacity-20 hover:bg-opacity-30 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-400 transition-all duration-200">
+                        <i class="fas fa-trash-alt mr-2"></i>
+                        Delete
+                    </button>
+                    <form id="delete-form" action="{{ url_for('schedule.delete', schedule_id=schedule.id) }}" method="post" class="hidden">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     </form>
                 </div>
             </div>
         </div>
-        
-        <div class="p-6">
-            {% if schedule.description %}
-            <div class="mb-6">
-                <h2 class="text-lg font-semibold text-gray-800 mb-2">Description</h2>
-                <p class="text-gray-700">{{ schedule.description }}</p>
-            </div>
-            {% endif %}
-            
-            {% if schedule.date %}
-            <div class="mb-6">
-                <h2 class="text-lg font-semibold text-gray-800 mb-2">Schedule Date</h2>
-                <div class="bg-gray-50 p-4 rounded border border-gray-200">
-                    <div class="flex items-center">
-                        <span class="text-gray-600 w-24">Date:</span>
-                        <span class="font-medium">{{ schedule.date.strftime('%B %d, %Y') }}</span>
-                    </div>
-                </div>
-            </div>
-            {% endif %}
-            
-            <div class="mb-8">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-xl font-semibold text-gray-800">Schedule Items</h2>
-                    <a href="{{ url_for('schedule.index') }}" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                        Back to Schedule
-                    </a>
-                </div>
-                
-                {% if schedule.items.all() %}
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full bg-white">
-                            <thead>
-                                <tr class="bg-gray-100 text-gray-700 uppercase text-sm leading-normal">
-                                    <th class="py-3 px-6 text-left">Title</th>
-                                    <th class="py-3 px-6 text-left">Time</th>
-                                    <th class="py-3 px-6 text-left">Type</th>
-                                    <th class="py-3 px-6 text-center">Status</th>
-                                    <th class="py-3 px-6 text-center">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody class="text-gray-600 text-sm">
-                                {% for item in schedule.items.all() %}
-                                    <tr class="border-b border-gray-200 hover:bg-gray-50">
-                                        <td class="py-3 px-6 text-left">
-                                            <div class="font-medium">{{ item.title }}</div>
-                                            {% if item.description %}
-                                                <div class="text-xs text-gray-500">{{ item.description }}</div>
-                                            {% endif %}
-                                        </td>
-                                        <td class="py-3 px-6 text-left">
-                                            {% if item.start_time %}
-                                                {{ item.start_time.strftime('%I:%M %p') }}
-                                                {% if item.end_time %}
-                                                - {{ item.end_time.strftime('%I:%M %p') }}
-                                                {% endif %}
-                                            {% endif %}
-                                        </td>
-                                        <td class="py-3 px-6 text-left">{{ item.item_type|capitalize if item.item_type else 'N/A' }}</td>
-                                        <td class="py-3 px-6 text-center">
-                                            <span class="px-2 py-1 rounded-full text-xs 
-                                                {% if item.completed %}
-                                                    bg-green-100 text-green-800
-                                                {% else %}
-                                                    bg-yellow-100 text-yellow-800
-                                                {% endif %}">
-                                                {{ 'Completed' if item.completed else 'Pending' }}
-                                            </span>
-                                        </td>
-                                        <td class="py-3 px-6 text-center">
-                                            <div class="flex items-center justify-center space-x-3">
-                                                {% if not item.completed %}
-                                                    <form action="{{ url_for('schedule.complete_item', id=item.id) }}" method="post" class="inline">
-                                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                                        <button type="submit" class="text-green-600 hover:text-green-900">
-                                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                                            </svg>
-                                                        </button>
-                                                    </form>
-                                                {% endif %}
-                                                <form action="{{ url_for('schedule.delete_item', id=item.id) }}" method="post" class="inline">
-                                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                                    <button type="submit" onclick="return confirm('Are you sure you want to delete this item?')" class="text-red-600 hover:text-red-900">
-                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                                        </svg>
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                {% else %}
-                    <div class="bg-gray-50 p-6 rounded-lg border border-gray-200 text-center">
-                        <p class="text-gray-600">No schedule items added yet.</p>
-                        <a href="{{ url_for('schedule.index') }}" class="mt-3 inline-block text-blue-600 hover:text-blue-800 font-medium">
-                            Go Back to Add Items
-                        </a>
-                    </div>
-                {% endif %}
-            </div>
+        <!-- Decorative pattern -->
+        <div class="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-r from-primary-600 to-secondary-600 opacity-30">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" class="absolute bottom-0 text-white opacity-10">
+                <path fill="currentColor" fill-opacity="1" d="M0,192L48,176C96,160,192,128,288,122.7C384,117,480,139,576,165.3C672,192,768,224,864,213.3C960,203,1056,149,1152,138.7C1248,128,1344,160,1392,176L1440,192L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+            </svg>
         </div>
     </div>
+
+    <!-- No items state -->
+    {% if schedule.items.count() == 0 %}
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-8 shadow-md text-center border border-gray-100 dark:border-gray-700">
+            <div class="mx-auto w-16 h-16 bg-primary-100 dark:bg-primary-900 rounded-full flex items-center justify-center mb-4">
+                <i class="fas fa-tasks text-primary-600 dark:text-primary-300 text-2xl"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">No Schedule Items</h2>
+            <p class="text-gray-600 dark:text-gray-400 max-w-md mx-auto mb-6">
+                This schedule doesn't have any items yet. Add study sessions, skill practice, or other activities to your schedule.
+            </p>
+            
+            <a href="{{ url_for('schedule.add_item', schedule_id=schedule.id) }}" class="inline-flex items-center px-5 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-200">
+                <i class="fas fa-plus mr-2"></i>
+                Add Schedule Item
+            </a>
+        </div>
+    {% else %}
+        <!-- Schedule items -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-lg border border-gray-100 dark:border-gray-700 mb-8">
+            <div class="bg-gray-50 dark:bg-gray-700 px-6 py-4 border-b border-gray-100 dark:border-gray-600">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Schedule Items</h2>
+                    <a href="{{ url_for('schedule.add_item', schedule_id=schedule.id) }}" class="text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-300 focus:outline-none">
+                        <i class="fas fa-plus-circle mr-1"></i>
+                        Add Item
+                    </a>
+                </div>
+            </div>
+            
+            <div class="divide-y divide-gray-100 dark:divide-gray-600">
+                {% for item in schedule.items %}
+                    <div class="px-6 py-4 {% if item.completed %}opacity-70{% endif %}">
+                        <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+                            <div class="flex-1">
+                                <div class="flex items-start">
+                                    <div class="mr-4 mt-0.5">
+                                        <span class="flex h-10 w-10 rounded-full items-center justify-center 
+                                            {% if item.item_type == 'academic' %}
+                                                bg-indigo-100 text-indigo-600 dark:bg-indigo-900 dark:text-indigo-300
+                                            {% elif item.item_type == 'skill' %}
+                                                bg-teal-100 text-teal-600 dark:bg-teal-900 dark:text-teal-300
+                                            {% else %}
+                                                bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300
+                                            {% endif %}
+                                        ">
+                                            {% if item.item_type == 'academic' %}
+                                                <i class="fas fa-book"></i>
+                                            {% elif item.item_type == 'skill' %}
+                                                <i class="fas fa-laptop-code"></i>
+                                            {% else %}
+                                                <i class="fas fa-tasks"></i>
+                                            {% endif %}
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-lg font-medium text-gray-900 dark:text-white flex items-center">
+                                            {% if item.completed %}
+                                                <span class="line-through">{{ item.title }}</span>
+                                                <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">
+                                                    Completed
+                                                </span>
+                                            {% else %}
+                                                {{ item.title }}
+                                            {% endif %}
+                                        </h3>
+                                        
+                                        <div class="text-sm text-gray-500 dark:text-gray-400 mt-1 flex flex-wrap gap-x-4">
+                                            <div class="flex items-center">
+                                                <i class="far fa-clock mr-1"></i>
+                                                {{ item.start_time.strftime('%I:%M %p') }} - {{ item.end_time.strftime('%I:%M %p') }}
+                                                <span class="ml-1 text-xs opacity-70">({{ item.duration_minutes() }} min)</span>
+                                            </div>
+                                            
+                                            {% if item.item_type == 'academic' and item.material_id %}
+                                                <div class="flex items-center">
+                                                    <i class="fas fa-bookmark mr-1"></i>
+                                                    Academic Material
+                                                </div>
+                                            {% elif item.item_type == 'skill' and item.skill_id %}
+                                                <div class="flex items-center">
+                                                    <i class="fas fa-code mr-1"></i>
+                                                    Skill Practice
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        {% if item.description %}
+                                            <div class="mt-2 text-sm text-gray-600 dark:text-gray-300">
+                                                {{ item.description }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center space-x-2 mt-4 md:mt-0">
+                                {% if not item.completed %}
+                                    <form action="{{ url_for('schedule.complete_item', id=item.id) }}" method="post" class="inline">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button type="submit" class="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-lg text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-200">
+                                            <i class="fas fa-check mr-1"></i>
+                                            Complete
+                                        </button>
+                                    </form>
+                                {% endif %}
+                                
+                                <a href="{{ url_for('schedule.edit_item', id=item.id) }}" class="inline-flex items-center p-1.5 border border-transparent text-sm font-medium rounded-lg text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all duration-200">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                
+                                <form action="{{ url_for('schedule.delete_item', id=item.id) }}" method="post" class="inline">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" onclick="return confirm('Are you sure you want to delete this item?')" class="inline-flex items-center p-1.5 border border-transparent text-sm font-medium rounded-lg text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-200">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
 </div>
 {% endblock %} 

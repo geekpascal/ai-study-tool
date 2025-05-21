@@ -39,6 +39,7 @@ def index():
     upcoming_deadline = datetime.utcnow() + timedelta(days=7)
     upcoming_materials = Material.query.filter(
         Material.user_id == current_user.id,
+        Material.deadline != None,
         Material.deadline <= upcoming_deadline,
         Material.deadline >= datetime.utcnow()
     ).order_by(Material.deadline).limit(5).all()

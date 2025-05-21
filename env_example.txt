@@ -1,0 +1,17 @@
+# Environment Configuration
+
+# Application Security
+SECRET_KEY=your-secure-secret-key
+
+# Database Configuration
+# For SQLite (development)
+# DATABASE_URI=sqlite:///study_tool.db
+
+# For PostgreSQL (production) - Using Neon
+# DATABASE_URI=postgresql://username:password@hostname/database
+
+# API Keys for AI Services (if applicable)
+# GEMINI_API_KEY=your-api-key
+
+# Upload Configuration
+# MAX_CONTENT_LENGTH=16777216  # 16MB 

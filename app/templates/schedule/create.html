@@ -1,83 +1,115 @@
 {% extends 'base.html' %}
 
-{% block title %}Create Schedule{% endblock %}
+{% block title %}Create Schedule | UniqueSync{% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4 py-8">
-    <div class="max-w-3xl mx-auto bg-white shadow-md rounded-lg overflow-hidden">
-        <div class="bg-gray-100 px-6 py-4 border-b border-gray-200">
-            <h1 class="text-2xl font-bold text-gray-800">Create New Schedule</h1>
+<div class="max-w-4xl mx-auto px-4 py-10">
+    <!-- Page Header -->
+    <div class="mb-8 text-center">
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Create Your Schedule</h1>
+        <p class="text-lg text-gray-600 dark:text-gray-400">Plan your learning journey with structured schedules</p>
+    </div>
+    
+    <div class="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-lg border border-gray-100 dark:border-gray-700">
+        <!-- Form Header -->
+        <div class="bg-gradient-to-r from-primary-600 to-primary-700 px-6 py-5">
+            <div class="flex items-center">
+                <div class="rounded-full bg-white/20 p-2 mr-3">
+                    <i class="fas fa-calendar-plus text-white text-xl"></i>
+                </div>
+                <h2 class="text-xl font-bold text-white">New Schedule Details</h2>
+            </div>
         </div>
         
+        <!-- Form Content -->
         <div class="p-6">
             <form method="POST" action="{{ url_for('schedule.create') }}">
                 {{ form.csrf_token }}
                 
-                <div class="mb-4">
-                    <label for="title" class="block text-gray-700 text-sm font-bold mb-2">
-                        {{ form.title.label }}
-                    </label>
-                    {{ form.title(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline") }}
-                    {% if form.title.errors %}
-                        <p class="text-red-500 text-xs italic mt-1">
-                            {% for error in form.title.errors %}
-                                {{ error }}
-                            {% endfor %}
-                        </p>
-                    {% endif %}
-                </div>
-
-                <div class="mb-4">
-                    <label for="description" class="block text-gray-700 text-sm font-bold mb-2">
-                        {{ form.description.label }}
-                    </label>
-                    {{ form.description(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline", rows=4) }}
-                    {% if form.description.errors %}
-                        <p class="text-red-500 text-xs italic mt-1">
-                            {% for error in form.description.errors %}
-                                {{ error }}
-                            {% endfor %}
-                        </p>
-                    {% endif %}
-                </div>
-
-                <div class="mb-4">
-                    <label for="start_date" class="block text-gray-700 text-sm font-bold mb-2">
-                        {{ form.start_date.label }}
-                    </label>
-                    {{ form.start_date(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline", type="date") }}
-                    {% if form.start_date.errors %}
-                        <p class="text-red-500 text-xs italic mt-1">
-                            {% for error in form.start_date.errors %}
-                                {{ error }}
-                            {% endfor %}
-                        </p>
-                    {% endif %}
-                </div>
-
-                <div class="mb-4">
-                    <label for="end_date" class="block text-gray-700 text-sm font-bold mb-2">
-                        {{ form.end_date.label }}
-                    </label>
-                    {{ form.end_date(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline", type="date") }}
-                    {% if form.end_date.errors %}
-                        <p class="text-red-500 text-xs italic mt-1">
-                            {% for error in form.end_date.errors %}
-                                {{ error }}
-                            {% endfor %}
-                        </p>
-                    {% endif %}
-                </div>
-
-                <div class="mb-6">
-                    <div class="flex items-center">
-                        {{ form.is_active(class="mr-2") }}
-                        <label for="is_active" class="text-gray-700 text-sm font-bold">
-                            {{ form.is_active.label }}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <!-- Title Field -->
+                    <div class="col-span-2">
+                        <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            {{ form.title.label }}
                         </label>
+                        {{ form.title(class="appearance-none block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-gray-900 dark:text-white dark:bg-gray-700 text-base", placeholder="Enter schedule title...") }}
+                        {% if form.title.errors %}
+                            <p class="mt-2 text-sm text-red-600 dark:text-red-500">
+                                {% for error in form.title.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Description Field -->
+                    <div class="col-span-2">
+                        <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            {{ form.description.label }}
+                        </label>
+                        {{ form.description(class="appearance-none block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-gray-900 dark:text-white dark:bg-gray-700", rows=4, placeholder="Describe your schedule purpose...") }}
+                        {% if form.description.errors %}
+                            <p class="mt-2 text-sm text-red-600 dark:text-red-500">
+                                {% for error in form.description.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Date Fields -->
+                    <div>
+                        <label for="start_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            {{ form.start_date.label }}
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-calendar-day text-gray-400"></i>
+                            </div>
+                            {{ form.start_date(class="appearance-none block w-full pl-10 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-gray-900 dark:text-white dark:bg-gray-700", type="date") }}
+                        </div>
+                        {% if form.start_date.errors %}
+                            <p class="mt-2 text-sm text-red-600 dark:text-red-500">
+                                {% for error in form.start_date.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </p>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label for="end_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            {{ form.end_date.label }}
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-calendar-check text-gray-400"></i>
+                            </div>
+                            {{ form.end_date(class="appearance-none block w-full pl-10 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-gray-900 dark:text-white dark:bg-gray-700", type="date") }}
+                        </div>
+                        {% if form.end_date.errors %}
+                            <p class="mt-2 text-sm text-red-600 dark:text-red-500">
+                                {% for error in form.end_date.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Active Status -->
+                <div class="mb-6">
+                    <div class="relative inline-block w-full max-w-xs">
+                        <div class="flex items-center bg-gray-50 dark:bg-gray-700 rounded-lg p-3 border border-gray-200 dark:border-gray-600">
+                            {{ form.is_active(class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded") }}
+                            <label for="is_active" class="ml-3 text-gray-700 dark:text-gray-300 font-medium">
+                                {{ form.is_active.label }} 
+                                <span class="ml-1 text-xs text-gray-500">(Set your schedule as active or inactive)</span>
+                            </label>
+                        </div>
                     </div>
                     {% if form.is_active.errors %}
-                        <p class="text-red-500 text-xs italic mt-1">
+                        <p class="mt-2 text-sm text-red-600 dark:text-red-500">
                             {% for error in form.is_active.errors %}
                                 {{ error }}
                             {% endfor %}
@@ -85,39 +117,72 @@
                     {% endif %}
                 </div>
 
-                <div class="mb-4">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-3">Study Materials to Include:</h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        {% for subfield in form.materials %}
-                            <div class="flex items-start">
-                                {{ subfield(class="mt-1 mr-2") }}
-                                <label for="{{ subfield.id }}" class="text-gray-700">
-                                    {{ subfield.label }}
-                                </label>
-                            </div>
-                        {% endfor %}
-                    </div>
+                <!-- Study Materials Section -->
+                <div class="bg-gray-50 dark:bg-gray-700 rounded-xl p-6 mb-6">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+                        <i class="fas fa-book text-primary-500 mr-2"></i>
+                        Study Materials to Include
+                    </h3>
+                    
+                    {% if form.materials.choices %}
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                            {% for subfield in form.materials %}
+                                <div class="relative flex items-start p-3 rounded-lg border border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-200">
+                                    <div class="flex items-center h-5">
+                                        {{ subfield(class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded") }}
+                                    </div>
+                                    <div class="ml-3 text-sm">
+                                        <label for="{{ subfield.id }}" class="font-medium text-gray-700 dark:text-gray-300 cursor-pointer">
+                                            {{ subfield.label }}
+                                        </label>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <p class="text-gray-500 dark:text-gray-400">No study materials available. Please add materials first.</p>
+                        </div>
+                    {% endif %}
                 </div>
 
-                <div class="mb-6">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-3">Skills to Focus On:</h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        {% for subfield in form.skills %}
-                            <div class="flex items-start">
-                                {{ subfield(class="mt-1 mr-2") }}
-                                <label for="{{ subfield.id }}" class="text-gray-700">
-                                    {{ subfield.label }}
-                                </label>
-                            </div>
-                        {% endfor %}
-                    </div>
+                <!-- Skills Section -->
+                <div class="bg-gray-50 dark:bg-gray-700 rounded-xl p-6 mb-8">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+                        <i class="fas fa-code text-primary-500 mr-2"></i>
+                        Skills to Focus On
+                    </h3>
+                    
+                    {% if form.skills.choices %}
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                            {% for subfield in form.skills %}
+                                <div class="relative flex items-start p-3 rounded-lg border border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-200">
+                                    <div class="flex items-center h-5">
+                                        {{ subfield(class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded") }}
+                                    </div>
+                                    <div class="ml-3 text-sm">
+                                        <label for="{{ subfield.id }}" class="font-medium text-gray-700 dark:text-gray-300 cursor-pointer">
+                                            {{ subfield.label }}
+                                        </label>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <p class="text-gray-500 dark:text-gray-400">No skills available. Please add skills first.</p>
+                        </div>
+                    {% endif %}
                 </div>
 
-                <div class="flex items-center justify-between">
-                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                <!-- Form Actions -->
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <button type="submit" class="w-full sm:w-auto inline-flex justify-center items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-200">
+                        <i class="fas fa-save mr-2"></i>
                         Create Schedule
                     </button>
-                    <a href="{{ url_for('schedule.index') }}" class="inline-block text-sm font-semibold text-blue-600 hover:text-blue-800">
+                    <a href="{{ url_for('schedule.index') }}" class="w-full sm:w-auto inline-flex justify-center items-center px-6 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm text-base font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-200">
+                        <i class="fas fa-times mr-2"></i>
                         Cancel
                     </a>
                 </div>

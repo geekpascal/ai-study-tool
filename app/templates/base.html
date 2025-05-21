@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Study Tool{% endblock %}</title>
+    <title>{% block title %}UniqueSync{% endblock %}</title>
     
     <!-- Tailwind CSS via CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -45,13 +45,33 @@
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
+    <!-- Google Fonts - Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
     <!-- Custom styles -->
     <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
         .flash-message {
             transition: opacity 0.5s ease-in-out;
         }
         .progress-bar {
             transition: width 0.3s ease-in-out;
+        }
+        .hover-scale {
+            transition: transform 0.2s ease-in-out;
+        }
+        .hover-scale:hover {
+            transform: scale(1.03);
+        }
+        .card-shadow {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            transition: box-shadow 0.3s ease, transform 0.3s ease;
+        }
+        .card-shadow:hover {
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            transform: translateY(-4px);
         }
     </style>
 </head>
@@ -63,8 +83,10 @@
         <aside class="fixed inset-y-0 left-0 z-50 hidden w-64 overflow-y-auto bg-white dark:bg-gray-800 shadow-lg md:block">
             <div class="px-6 pt-6 pb-4">
                 <div class="flex items-center">
-                    <i class="fas fa-graduation-cap text-primary-500 text-2xl mr-3"></i>
-                    <h1 class="text-xl font-semibold text-gray-800 dark:text-white">Study Tool</h1>
+                    <div class="flex items-center justify-center w-10 h-10 rounded-lg bg-gradient-to-r from-primary-500 to-secondary-500 text-white mr-3">
+                        <i class="fas fa-bolt text-xl"></i>
+                    </div>
+                    <h1 class="text-xl font-bold text-gray-800 dark:text-white">UniqueSync</h1>
                 </div>
                 <nav class="mt-8 space-y-1">
                     <a href="{{ url_for('dashboard.index') }}" class="group flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-600 hover:bg-primary-50 hover:text-primary-600 dark:text-gray-300 dark:hover:bg-gray-700">
@@ -133,20 +155,22 @@
 
         <!-- Mobile menu -->
         {% if current_user.is_authenticated %}
-        <div class="md:hidden bg-white dark:bg-gray-800 shadow-sm w-full py-2 px-4 flex items-center justify-between">
+        <div class="md:hidden bg-white dark:bg-gray-800 shadow-sm w-full py-2 px-4 flex items-center justify-between fixed top-0 left-0 right-0 z-30">
             <div class="flex items-center">
-                <button id="mobile-menu-button" type="button" class="text-gray-500 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
+                <button id="mobile-menu-button" type="button" class="text-gray-500 hover:text-primary-600 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-500 p-2 rounded-md">
                     <span class="sr-only">Open sidebar</span>
                     <i class="fas fa-bars text-xl"></i>
                 </button>
-                <h1 class="ml-3 text-lg font-semibold text-gray-800 dark:text-white">Study Tool</h1>
             </div>
             <div>
-                <span class="inline-flex items-center justify-center h-8 w-8 rounded-full bg-primary-100 text-primary-600">
+                <span class="inline-flex items-center justify-center h-10 w-10 rounded-full bg-primary-100 text-primary-600">
                     <span class="text-sm font-medium">{{ current_user.username[0].upper() }}</span>
                 </span>
             </div>
         </div>
+
+        <!-- Add spacing for fixed header -->
+        <div class="md:hidden h-14"></div>
 
         <!-- Mobile sidebar -->
         <div id="mobile-sidebar" class="fixed inset-0 z-40 hidden">
@@ -161,8 +185,10 @@
 
                 <div class="flex-1 h-0 pt-5 pb-4 overflow-y-auto">
                     <div class="flex-shrink-0 flex items-center px-4">
-                        <i class="fas fa-graduation-cap text-primary-500 text-2xl mr-3"></i>
-                        <h1 class="text-xl font-semibold text-gray-800 dark:text-white">Study Tool</h1>
+                        <div class="flex items-center justify-center w-10 h-10 rounded-lg bg-gradient-to-r from-primary-500 to-secondary-500 text-white mr-3">
+                            <i class="fas fa-bolt text-xl"></i>
+                        </div>
+                        <h1 class="text-xl font-semibold text-gray-800 dark:text-white">UniqueSync</h1>
                     </div>
                     <nav class="mt-5 px-2 space-y-1">
                         <a href="{{ url_for('dashboard.index') }}" class="group flex items-center px-2 py-2 text-base font-medium rounded-md text-gray-600 hover:bg-primary-50 hover:text-primary-600 dark:text-gray-300 dark:hover:bg-gray-700">
@@ -273,7 +299,7 @@
 
             <!-- Page content -->
             <main class="flex-1 pb-8">
-                <div class="py-6">
+                <div class="py-6 px-4 sm:px-6 md:px-8">
                     {% block content %}{% endblock %}
                 </div>
             </main>
@@ -287,16 +313,28 @@
             const mobileMenuButton = document.getElementById('mobile-menu-button');
             const closeSidebarButton = document.getElementById('close-sidebar-button');
             const mobileSidebar = document.getElementById('mobile-sidebar');
+            const body = document.querySelector('body');
             
             if (mobileMenuButton && mobileSidebar) {
                 mobileMenuButton.addEventListener('click', function() {
                     mobileSidebar.classList.remove('hidden');
+                    body.classList.add('overflow-hidden'); // Prevent scrolling when menu is open
                 });
             }
             
             if (closeSidebarButton && mobileSidebar) {
                 closeSidebarButton.addEventListener('click', function() {
                     mobileSidebar.classList.add('hidden');
+                    body.classList.remove('overflow-hidden'); // Enable scrolling when menu is closed
+                });
+            }
+            
+            // Handle clicks on overlay to close sidebar
+            const overlay = document.querySelector('#mobile-sidebar > div:first-child');
+            if (overlay && mobileSidebar) {
+                overlay.addEventListener('click', function() {
+                    mobileSidebar.classList.add('hidden');
+                    body.classList.remove('overflow-hidden');
                 });
             }
             

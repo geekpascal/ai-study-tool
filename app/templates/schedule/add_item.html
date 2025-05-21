@@ -1,149 +1,182 @@
 {% extends 'base.html' %}
 
-{% block title %}Add Schedule Item{% endblock %}
+{% block title %}Add Schedule Item | UniqueSync{% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4 py-8">
-    <div class="mb-6">
-        <a href="{{ url_for('schedule.view', schedule_id=schedule.id) }}" class="inline-flex items-center text-blue-600 hover:text-blue-800">
-            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-            </svg>
-            Back to Schedule
-        </a>
+<div class="max-w-4xl mx-auto px-4 py-10">
+    <!-- Page Header -->
+    <div class="mb-8">
+        <div class="mb-4">
+            <a href="{{ url_for('schedule.view', schedule_id=schedule.id) }}" class="inline-flex items-center text-primary-600 hover:text-primary-700">
+                <i class="fas fa-arrow-left mr-2"></i>
+                Back to Schedule
+            </a>
+        </div>
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Add Item to Schedule</h1>
+        <p class="text-lg text-gray-600 dark:text-gray-400">Add a new activity to "{{ schedule.title }}"</p>
     </div>
     
-    <div class="max-w-2xl mx-auto bg-white shadow-md rounded-lg overflow-hidden">
-        <div class="bg-gray-100 px-6 py-4 border-b border-gray-200">
-            <h1 class="text-2xl font-bold text-gray-800">Add Schedule Item</h1>
-            <p class="text-gray-600 text-sm mt-1">For schedule: {{ schedule.title }}</p>
+    <div class="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-lg border border-gray-100 dark:border-gray-700">
+        <!-- Form Header -->
+        <div class="bg-gradient-to-r from-primary-600 to-primary-700 px-6 py-5">
+            <div class="flex items-center">
+                <div class="rounded-full bg-white/20 p-2 mr-3">
+                    <i class="fas fa-calendar-plus text-white text-xl"></i>
+                </div>
+                <h2 class="text-xl font-bold text-white">Schedule Item Details</h2>
+            </div>
         </div>
         
+        <!-- Form Content -->
         <div class="p-6">
             <form method="POST" action="{{ url_for('schedule.add_item', schedule_id=schedule.id) }}">
                 {{ form.csrf_token }}
                 
-                <div class="mb-4">
-                    <label for="title" class="block text-gray-700 text-sm font-bold mb-2">
-                        {{ form.title.label }}
-                    </label>
-                    {{ form.title(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline") }}
-                    {% if form.title.errors %}
-                        <p class="text-red-500 text-xs italic mt-1">
-                            {% for error in form.title.errors %}
-                                {{ error }}
-                            {% endfor %}
-                        </p>
-                    {% endif %}
-                </div>
-                
-                <div class="mb-4">
-                    <label for="description" class="block text-gray-700 text-sm font-bold mb-2">
-                        {{ form.description.label }}
-                    </label>
-                    {{ form.description(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline", rows=3) }}
-                    {% if form.description.errors %}
-                        <p class="text-red-500 text-xs italic mt-1">
-                            {% for error in form.description.errors %}
-                                {{ error }}
-                            {% endfor %}
-                        </p>
-                    {% endif %}
-                </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <!-- Time Fields -->
                     <div>
-                        <label for="date" class="block text-gray-700 text-sm font-bold mb-2">
-                            {{ form.date.label }}
-                        </label>
-                        {{ form.date(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline", type="date") }}
-                        {% if form.date.errors %}
-                            <p class="text-red-500 text-xs italic mt-1">
-                                {% for error in form.date.errors %}
-                                    {{ error }}
-                                {% endfor %}
-                            </p>
-                        {% endif %}
-                    </div>
-                    
-                    <div>
-                        <label for="start_time" class="block text-gray-700 text-sm font-bold mb-2">
+                        <label for="start_time" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             {{ form.start_time.label }}
                         </label>
-                        {{ form.start_time(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline", type="time") }}
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="far fa-clock text-gray-400"></i>
+                            </div>
+                            {{ form.start_time(class="appearance-none block w-full pl-10 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-gray-900 dark:text-white dark:bg-gray-700", type="time") }}
+                        </div>
                         {% if form.start_time.errors %}
-                            <p class="text-red-500 text-xs italic mt-1">
+                            <p class="mt-2 text-sm text-red-600 dark:text-red-500">
                                 {% for error in form.start_time.errors %}
                                     {{ error }}
                                 {% endfor %}
                             </p>
                         {% endif %}
                     </div>
-                </div>
-                
-                <div class="mb-4">
-                    <label for="duration" class="block text-gray-700 text-sm font-bold mb-2">
-                        {{ form.duration.label }} (minutes)
-                    </label>
-                    {{ form.duration(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline", type="number", min="5") }}
-                    {% if form.duration.errors %}
-                        <p class="text-red-500 text-xs italic mt-1">
-                            {% for error in form.duration.errors %}
-                                {{ error }}
-                            {% endfor %}
-                        </p>
-                    {% endif %}
-                </div>
-                
-                <div class="mb-6">
-                    <div class="flex items-center">
-                        {{ form.is_completed(class="mr-2") }}
-                        <label for="is_completed" class="text-gray-700 text-sm font-bold">
-                            {{ form.is_completed.label }}
+
+                    <div>
+                        <label for="end_time" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            {{ form.end_time.label }}
                         </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="far fa-clock text-gray-400"></i>
+                            </div>
+                            {{ form.end_time(class="appearance-none block w-full pl-10 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-gray-900 dark:text-white dark:bg-gray-700", type="time") }}
+                        </div>
+                        {% if form.end_time.errors %}
+                            <p class="mt-2 text-sm text-red-600 dark:text-red-500">
+                                {% for error in form.end_time.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </p>
+                        {% endif %}
                     </div>
-                    {% if form.is_completed.errors %}
-                        <p class="text-red-500 text-xs italic mt-1">
-                            {% for error in form.is_completed.errors %}
-                                {{ error }}
-                            {% endfor %}
-                        </p>
-                    {% endif %}
                 </div>
-                
-                <div class="mb-4">
-                    <label for="material_id" class="block text-gray-700 text-sm font-bold mb-2">
+
+                <!-- Item Type Selection -->
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Item Type
+                    </label>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        {% for subfield in form.item_type %}
+                            <div class="relative flex items-start p-4 rounded-lg border border-gray-200 dark:border-gray-600 
+                                {{ 'bg-primary-50 dark:bg-primary-900/30 border-primary-200 dark:border-primary-700' if loop.index0 == 0 }}
+                                hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
+                                <div class="flex items-center h-5">
+                                    {{ subfield(class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded") }}
+                                </div>
+                                <div class="ml-3 text-sm">
+                                    <label for="{{ subfield.id }}" class="font-medium text-gray-700 dark:text-gray-300 cursor-pointer">
+                                        {% if subfield.label.text == 'academic' %}
+                                            <span class="flex items-center">
+                                                <i class="fas fa-book text-indigo-500 mr-2"></i>
+                                                Academic Material
+                                            </span>
+                                        {% elif subfield.label.text == 'skill' %}
+                                            <span class="flex items-center">
+                                                <i class="fas fa-laptop-code text-teal-500 mr-2"></i>
+                                                Skill Development
+                                            </span>
+                                        {% else %}
+                                            <span class="flex items-center">
+                                                <i class="fas fa-tasks text-gray-500 mr-2"></i>
+                                                Other Activity
+                                            </span>
+                                        {% endif %}
+                                    </label>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Conditional Fields Based on Type -->
+                <div id="material-selector" class="mb-6">
+                    <label for="material_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         {{ form.material_id.label }}
                     </label>
-                    {{ form.material_id(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline") }}
+                    {{ form.material_id(class="appearance-none block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-gray-900 dark:text-white dark:bg-gray-700 text-base") }}
                     {% if form.material_id.errors %}
-                        <p class="text-red-500 text-xs italic mt-1">
+                        <p class="mt-2 text-sm text-red-600 dark:text-red-500">
                             {% for error in form.material_id.errors %}
                                 {{ error }}
                             {% endfor %}
                         </p>
                     {% endif %}
                 </div>
-                
-                <div class="mb-6">
-                    <label for="skill_id" class="block text-gray-700 text-sm font-bold mb-2">
+
+                <div id="skill-selector" class="mb-6" style="display: none;">
+                    <label for="skill_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         {{ form.skill_id.label }}
                     </label>
-                    {{ form.skill_id(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline") }}
+                    {{ form.skill_id(class="appearance-none block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-gray-900 dark:text-white dark:bg-gray-700 text-base") }}
                     {% if form.skill_id.errors %}
-                        <p class="text-red-500 text-xs italic mt-1">
+                        <p class="mt-2 text-sm text-red-600 dark:text-red-500">
                             {% for error in form.skill_id.errors %}
                                 {{ error }}
                             {% endfor %}
                         </p>
                     {% endif %}
                 </div>
-                
-                <div class="flex items-center justify-between">
-                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+
+                <div id="title-field" class="mb-6" style="display: none;">
+                    <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        {{ form.title.label }}
+                    </label>
+                    {{ form.title(class="appearance-none block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-gray-900 dark:text-white dark:bg-gray-700 text-base", placeholder="Enter item title...") }}
+                    {% if form.title.errors %}
+                        <p class="mt-2 text-sm text-red-600 dark:text-red-500">
+                            {% for error in form.title.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </p>
+                    {% endif %}
+                </div>
+
+                <!-- Description Field -->
+                <div class="mb-8">
+                    <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        {{ form.description.label }}
+                    </label>
+                    {{ form.description(class="appearance-none block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-gray-900 dark:text-white dark:bg-gray-700", rows=3, placeholder="Add description or notes about this activity...") }}
+                    {% if form.description.errors %}
+                        <p class="mt-2 text-sm text-red-600 dark:text-red-500">
+                            {% for error in form.description.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </p>
+                    {% endif %}
+                </div>
+
+                <!-- Form Actions -->
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <button type="submit" class="w-full sm:w-auto inline-flex justify-center items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-200">
+                        <i class="fas fa-save mr-2"></i>
                         Add Item
                     </button>
-                    <a href="{{ url_for('schedule.view', schedule_id=schedule.id) }}" class="inline-block text-sm font-semibold text-blue-600 hover:text-blue-800">
+                    <a href="{{ url_for('schedule.view', schedule_id=schedule.id) }}" class="w-full sm:w-auto inline-flex justify-center items-center px-6 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm text-base font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-200">
+                        <i class="fas fa-times mr-2"></i>
                         Cancel
                     </a>
                 </div>
@@ -151,4 +184,41 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get form elements
+        const typeRadios = document.querySelectorAll('input[name="item_type"]');
+        const materialField = document.getElementById('material-selector');
+        const skillField = document.getElementById('skill-selector');
+        const titleField = document.getElementById('title-field');
+        
+        // Function to toggle fields based on selection
+        function toggleFields() {
+            const selectedType = document.querySelector('input[name="item_type"]:checked').value;
+            
+            if (selectedType === 'academic') {
+                materialField.style.display = 'block';
+                skillField.style.display = 'none';
+                titleField.style.display = 'none';
+            } else if (selectedType === 'skill') {
+                materialField.style.display = 'none';
+                skillField.style.display = 'block';
+                titleField.style.display = 'none';
+            } else {
+                materialField.style.display = 'none';
+                skillField.style.display = 'none';
+                titleField.style.display = 'block';
+            }
+        }
+        
+        // Add change event listener to radio buttons
+        typeRadios.forEach(radio => {
+            radio.addEventListener('change', toggleFields);
+        });
+        
+        // Initialize form state
+        toggleFields();
+    });
+</script>
 {% endblock %} 

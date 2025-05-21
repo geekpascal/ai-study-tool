@@ -16,7 +16,7 @@
     <div class="bg-white shadow-md rounded-lg overflow-hidden mb-8">
         <div class="bg-gradient-to-r from-purple-600 to-indigo-700 px-6 py-4">
             <h1 class="text-2xl font-bold text-white flex items-center">
-                <i class="fas fa-brain mr-3"></i>
+                <i class="fas fa-bolt mr-3"></i>
                 AI Skill Analysis: {{ skill.name }}
             </h1>
         </div>
@@ -132,6 +132,34 @@
                     <p class="text-sm text-gray-400 mt-2">Add your Tavily API key to get web search results.</p>
                 </div>
             {% endif %}
+        </div>
+    </div>
+
+    <div class="mb-8">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4">Analysis & Recommendations</h2>
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+            <div class="divide-y divide-gray-200">
+                <div class="p-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-3">Skill Assessment</h3>
+                    <div class="text-gray-700">
+                        {{ analysis.assessment|safe }}
+                    </div>
+                </div>
+                
+                <div class="p-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-3">Learning Path</h3>
+                    <div class="text-gray-700">
+                        {{ analysis.learning_path|safe }}
+                    </div>
+                </div>
+                
+                <div class="p-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-3">Practice Recommendations</h3>
+                    <div class="text-gray-700">
+                        {{ analysis.practice_recommendations|safe }}
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>

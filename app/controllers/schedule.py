@@ -117,12 +117,12 @@ def create_item():
         if form.item_type.data == 'academic' and form.material_id.data:
             item.material_id = form.material_id.data
             material = Material.query.get(form.material_id.data)
-            if material:
+            if material and form.material_id.data != 0:
                 item.title = material.title
         elif form.item_type.data == 'skill' and form.skill_id.data:
             item.skill_id = form.skill_id.data
             skill = Skill.query.get(form.skill_id.data)
-            if skill:
+            if skill and form.skill_id.data != 0:
                 item.title = skill.name
         
         db.session.add(item)
@@ -198,6 +198,13 @@ def delete_item(id):
 def create():
     form = ScheduleForm()
     
+    # Populate form choices with user's materials and skills
+    materials = Material.query.filter_by(user_id=current_user.id).all()
+    form.materials.choices = [(m.id, m.title) for m in materials]
+    
+    skills = Skill.query.filter_by(user_id=current_user.id).all()
+    form.skills.choices = [(s.id, s.name) for s in skills]
+    
     # Validate form and create schedule
     if form.validate_on_submit():
         # Create new schedule
@@ -252,10 +259,9 @@ def create():
                     )
                     db.session.add(item)
         
-        # Commit all items to database
         db.session.commit()
         flash('Schedule created successfully!', 'success')
-        return redirect(url_for('schedule.index'))
+        return redirect(url_for('schedule.view', schedule_id=schedule.id))
     
     return render_template('schedule/create.html', form=form)
 
@@ -268,96 +274,83 @@ def view(schedule_id):
     return render_template(
         'schedule/view.html',
         schedule=schedule,
-        current_date=schedule.date if hasattr(schedule, 'date') else None
+        current_date=schedule.get_display_date()
     )
 
 @schedule_bp.route('/<int:schedule_id>/edit', methods=['GET', 'POST'])
 @login_required
 def edit(schedule_id):
-    """Edit an existing schedule"""
-    schedule = Schedule.query.filter_by(id=schedule_id, user_id=current_user.id).first_or_404()
+    schedule = Schedule.query.get_or_404(schedule_id)
+    
+    # Verify ownership
+    if schedule.user_id != current_user.id:
+        flash('Unauthorized access!', 'error')
+        return redirect(url_for('schedule.index'))
     
     form = ScheduleForm(obj=schedule)
     
-    # Pre-select materials and skills if they exist in schedule items
+    # Populate form choices with user's materials and skills
+    materials = Material.query.filter_by(user_id=current_user.id).all()
+    form.materials.choices = [(m.id, m.title) for m in materials]
+    
+    skills = Skill.query.filter_by(user_id=current_user.id).all()
+    form.skills.choices = [(s.id, s.name) for s in skills]
+    
+    # Set initial values for materials and skills
     if request.method == 'GET':
-        # Get materials from schedule items
-        material_ids = []
-        for item in schedule.items:
-            if item.material_id:
-                material_ids.append(item.material_id)
-        
-        # Get skills from schedule items
-        skill_ids = []
-        for item in schedule.items:
-            if item.skill_id:
-                skill_ids.append(item.skill_id)
-        
-        form.materials.data = material_ids
-        form.skills.data = skill_ids
+        form.materials.data = [item.material_id for item in schedule.items if item.material_id]
+        form.skills.data = [item.skill_id for item in schedule.items if item.skill_id]
     
     if form.validate_on_submit():
-        # Update schedule fields
+        # Update schedule details
         schedule.title = form.title.data
         schedule.description = form.description.data
         schedule.start_date = form.start_date.data
         schedule.end_date = form.end_date.data
         schedule.is_active = form.is_active.data
         
-        # Save changes
-        db.session.commit()
+        # Remove existing items
+        for item in schedule.items:
+            db.session.delete(item)
         
-        # Handle materials - add new ones
+        # Default time slots (9 AM - 10 AM)
+        default_start_time = time(9, 0)
+        default_end_time = time(10, 0)
+        
+        # Process selected materials
         if form.materials.data:
-            # Find materials that are not already in schedule items
-            existing_material_ids = [item.material_id for item in schedule.items if item.material_id]
-            
             for material_id in form.materials.data:
-                if material_id not in existing_material_ids:
-                    # Add new schedule item for this material
-                    material = Material.query.get(material_id)
-                    if material and material.user_id == current_user.id:
-                        from datetime import time
-                        default_start_time = time(9, 0)
-                        default_end_time = time(10, 0)
-                        
-                        item = ScheduleItem(
-                            schedule_id=schedule.id,
-                            start_time=default_start_time,
-                            end_time=default_end_time,
-                            item_type='academic',
-                            title=material.title,
-                            material_id=material_id,
-                            description=f"Study {material.title}"
-                        )
-                        db.session.add(item)
+                material = Material.query.get(material_id)
+                if material and material.user_id == current_user.id:
+                    # Create a schedule item for each material
+                    item = ScheduleItem(
+                        schedule_id=schedule.id,
+                        start_time=default_start_time,
+                        end_time=default_end_time,
+                        item_type='academic',
+                        title=material.title,
+                        material_id=material.id,
+                        description=f"Study {material.title}"
+                    )
+                    db.session.add(item)
         
-        # Handle skills - add new ones
+        # Process selected skills
         if form.skills.data:
-            # Find skills that are not already in schedule items
-            existing_skill_ids = [item.skill_id for item in schedule.items if item.skill_id]
-            
             for skill_id in form.skills.data:
-                if skill_id not in existing_skill_ids:
-                    # Add new schedule item for this skill
-                    skill = Skill.query.get(skill_id)
-                    if skill and skill.user_id == current_user.id:
-                        from datetime import time
-                        default_start_time = time(9, 0)
-                        default_end_time = time(10, 0)
-                        
-                        item = ScheduleItem(
-                            schedule_id=schedule.id,
-                            start_time=default_start_time,
-                            end_time=default_end_time,
-                            item_type='skill',
-                            title=skill.name,
-                            skill_id=skill_id,
-                            description=f"Practice {skill.name}"
-                        )
-                        db.session.add(item)
+                skill = Skill.query.get(skill_id)
+                if skill and skill.user_id == current_user.id:
+                    # Create a schedule item for each skill
+                    item = ScheduleItem(
+                        schedule_id=schedule.id,
+                        start_time=default_start_time,
+                        end_time=default_end_time,
+                        item_type='skill',
+                        title=skill.name,
+                        skill_id=skill.id,
+                        description=f"Practice {skill.name}"
+                    )
+                    db.session.add(item)
         
-        # Commit changes
         db.session.commit()
         flash('Schedule updated successfully!', 'success')
         return redirect(url_for('schedule.view', schedule_id=schedule.id))
@@ -375,4 +368,102 @@ def delete(schedule_id):
     db.session.commit()
     
     flash('Schedule deleted successfully!', 'success')
-    return redirect(url_for('schedule.index')) 
+    return redirect(url_for('schedule.index'))
+
+@schedule_bp.route('/<int:schedule_id>/add-item', methods=['GET', 'POST'])
+@login_required
+def add_item(schedule_id):
+    """Add an item to an existing schedule"""
+    schedule = Schedule.query.filter_by(id=schedule_id, user_id=current_user.id).first_or_404()
+    
+    form = ScheduleItemForm()
+    
+    # Populate the form with user's materials and skills
+    materials = Material.query.filter_by(user_id=current_user.id).all()
+    form.material_id.choices = [(0, 'Select a Material')] + [(m.id, m.title) for m in materials]
+    
+    skills = Skill.query.filter_by(user_id=current_user.id).all()
+    form.skill_id.choices = [(0, 'Select a Skill')] + [(s.id, s.name) for s in skills]
+    
+    if form.validate_on_submit():
+        # Create schedule item
+        item = ScheduleItem(
+            start_time=form.start_time.data,
+            end_time=form.end_time.data,
+            item_type=form.item_type.data,
+            title=form.title.data,
+            description=form.description.data,
+            schedule_id=schedule.id
+        )
+        
+        # Link to material or skill if applicable
+        if form.item_type.data == 'academic' and form.material_id.data:
+            item.material_id = form.material_id.data
+            material = Material.query.get(form.material_id.data)
+            if material and form.material_id.data != 0:
+                item.title = material.title
+        elif form.item_type.data == 'skill' and form.skill_id.data:
+            item.skill_id = form.skill_id.data
+            skill = Skill.query.get(form.skill_id.data)
+            if skill and form.skill_id.data != 0:
+                item.title = skill.name
+        
+        db.session.add(item)
+        db.session.commit()
+        flash('Schedule item added!', 'success')
+        return redirect(url_for('schedule.view', schedule_id=schedule.id))
+    
+    return render_template('schedule/add_item.html', form=form, schedule=schedule)
+
+@schedule_bp.route('/item/<int:id>/edit', methods=['GET', 'POST'])
+@login_required
+def edit_item(id):
+    """Edit an existing schedule item"""
+    item = ScheduleItem.query.get_or_404(id)
+    schedule = Schedule.query.get_or_404(item.schedule_id)
+    
+    # Verify ownership
+    if schedule.user_id != current_user.id:
+        flash('Unauthorized access!', 'error')
+        return redirect(url_for('schedule.index'))
+    
+    form = ScheduleItemForm(obj=item)
+    
+    # Populate the form with user's materials and skills
+    materials = Material.query.filter_by(user_id=current_user.id).all()
+    form.material_id.choices = [(0, 'Select a Material')] + [(m.id, m.title) for m in materials]
+    
+    skills = Skill.query.filter_by(user_id=current_user.id).all()
+    form.skill_id.choices = [(0, 'Select a Skill')] + [(s.id, s.name) for s in skills]
+    
+    if form.validate_on_submit():
+        # Update item details
+        item.start_time = form.start_time.data
+        item.end_time = form.end_time.data
+        item.item_type = form.item_type.data
+        item.description = form.description.data
+        item.completed = form.completed.data
+        
+        # Reset material and skill IDs
+        item.material_id = None
+        item.skill_id = None
+        
+        # Link to material or skill if applicable
+        if form.item_type.data == 'academic' and form.material_id.data:
+            item.material_id = form.material_id.data
+            material = Material.query.get(form.material_id.data)
+            if material and form.material_id.data != 0:
+                item.title = material.title
+        elif form.item_type.data == 'skill' and form.skill_id.data:
+            item.skill_id = form.skill_id.data
+            skill = Skill.query.get(form.skill_id.data)
+            if skill and form.skill_id.data != 0:
+                item.title = skill.name
+        else:
+            item.title = form.title.data
+        
+        db.session.commit()
+        flash('Schedule item updated!', 'success')
+        return redirect(url_for('schedule.view', schedule_id=schedule.id))
+    
+    return render_template('schedule/edit_item.html', form=form, schedule=schedule, item=item) 

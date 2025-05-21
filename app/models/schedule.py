@@ -20,7 +20,11 @@ class Schedule(db.Model):
     items = db.relationship('ScheduleItem', backref='schedule', lazy='dynamic', cascade='all, delete-orphan')
     
     def __repr__(self):
-        return f'<Schedule {self.title} for {self.date}>'
+        return f'<Schedule {self.title}>'
+    
+    # Helper method to get date for templates that might expect it
+    def get_display_date(self):
+        return self.date if self.date else self.start_date
 
 class ScheduleItem(db.Model):
     __tablename__ = 'schedule_items'
